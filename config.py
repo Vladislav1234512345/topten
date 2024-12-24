@@ -42,9 +42,21 @@ class CookiesSettings(BaseSettings):
     model_config = SettingsConfigDict(case_sensitive=False)
 
 
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str
+    REDIS_PORT: str
+
+    model_config = SettingsConfigDict(
+        env_file=BASE_DIR / '.env._redis',
+        env_file_encoding='utf-8',
+        case_sensitive=False
+    )
+
 
 database_settings = DatabaseSettings()
 
 jwt_settings = JWTSettings()
 
 cookies_settings = CookiesSettings()
+
+redis_settings = RedisSettings()

@@ -18,7 +18,15 @@ pip install -r requirements.txt
 
 ***
 
-**Step-2:**
+**Step-3:**
+```shell
+# Run the redis
+docker run --name redis --rm -p 6379:6379 redis
+```
+
+***
+
+**Step-4:**
 ```shell
 # Run the project
 python main.py
