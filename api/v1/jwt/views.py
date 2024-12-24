@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Response, Form, HTTPException, Depends
-from starlette import status
-from starlette.responses import JSONResponse
+from fastapi import APIRouter, Response, Form, HTTPException, Depends, status
+from fastapi.responses import JSONResponse
+from redis.asyncio import Redis
 
 from .utils import encode_jwt
 from models import User
@@ -9,6 +9,7 @@ from database import AsyncSessionDep
 from sqlmodel import select
 from api.v1.sms.validators import validate_phone_number, validate_sms_code
 from api.v1.sms.utils import get_redis_pool
+from config import logger
 
 
 router = APIRouter()
@@ -17,17 +18,20 @@ router = APIRouter()
 @router.post('/auth')
 async def auth(
     session: AsyncSessionDep,
-    redis_pool: Depends(get_redis_pool),
     response: Response,
+    redis_pool: Redis = Depends(get_redis_pool),
     phone_number: str = Form(),
     sms_code: str = Form(),
 ) -> JSONResponse:
     validate_phone_number(phone_number=phone_number)
     validate_sms_code(sms_code=sms_code)
 
-    stored_code = await redis_pool.get(phone_number)
+    stored_code: str = await redis_pool.get(phone_number)
 
-    if not stored_code or stored_code.decode() != phone_number:
+    logger.info(f"stored_code = {stored_code}")
+    logger.info(f"sms_code = {sms_code}")
+
+    if stored_code != sms_code:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Неверный код подтверждения",
@@ -38,7 +42,10 @@ async def auth(
         detail="Неудалось авторизоваться"
     )
     statement = select(User).filter_by(phone_number=phone_number)
-    result = await session.execute(statement)
+    try:
+        result = await session.execute(statement)
+    except:
+        raise unauthorized_exception
     user = result.scalar()
 
     if not user:

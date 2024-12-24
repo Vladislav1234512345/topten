@@ -3,6 +3,9 @@ from os.path import dirname
 from pathlib import Path
 from datetime import timedelta
 from typing import Literal
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 BASE_DIR = Path(dirname(__file__))
@@ -53,6 +56,16 @@ class RedisSettings(BaseSettings):
     )
 
 
+class SMSSettings(BaseSettings):
+    expire_time: timedelta = timedelta(minutes=5)
+
+    model_config = SettingsConfigDict(
+        env_file=BASE_DIR / '.env.sms',
+        env_file_encoding='utf-8',
+        case_sensitive=False,
+        extra='allow'
+    )
+
 database_settings = DatabaseSettings()
 
 jwt_settings = JWTSettings()
@@ -60,3 +73,5 @@ jwt_settings = JWTSettings()
 cookies_settings = CookiesSettings()
 
 redis_settings = RedisSettings()
+
+sms_settings = SMSSettings()

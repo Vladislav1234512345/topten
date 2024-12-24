@@ -18,6 +18,4 @@ def func_test_auth(phone_number: str, sms_code: str):
 
 def test_auth():
     func_test_auth(phone_number='+77053872095', sms_code=generate_sms_code())
-    # func_test_auth(phone_number='+79991709804', sms_code=generate_sms_code())
-    # func_test_auth(phone_number='+77053872093', sms_code=generate_sms_code())
 
