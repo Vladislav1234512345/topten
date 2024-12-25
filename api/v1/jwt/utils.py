@@ -2,7 +2,7 @@ import jwt
 from config import jwt_settings
 from datetime import timedelta, datetime, UTC
 from models import User
-from fastapi import Response
+from starlette.responses import JSONResponse
 from config import cookies_settings
 
 
@@ -26,15 +26,17 @@ def decode_jwt(
     public_key: str = jwt_settings.public_key_path.read_text(),
     algorithm: str = jwt_settings.algorithm
 ) -> dict:
-    decoded_jwt = jwt.decode(jwt=token, key=public_key, algorithm=algorithm)
+
+    decoded_jwt = jwt.decode(jwt=token, key=public_key, algorithms=[algorithm])
 
     return decoded_jwt
 
 
 def create_access_token(user: User) -> str:
     jwt_payload_access_token = {
+        "uid": user.id,
+        "sub": user.phone_number,
         "type": jwt_settings.jwt_access_token_type,
-        "sub": user.id,
         "first_name": user.first_name,
     }
 
@@ -48,8 +50,9 @@ def create_access_token(user: User) -> str:
 
 def create_refresh_token(user: User) -> str:
     jwt_payload_refresh_token = {
+        "uid": user.id,
+        "sub": user.phone_number,
         "type": jwt_settings.jwt_refresh_token_type,
-        "sub": user.id,
     }
 
     refresh_token = encode_jwt(
@@ -60,11 +63,11 @@ def create_refresh_token(user: User) -> str:
     return refresh_token
 
 
-def set_tokens(response: Response, user: User) -> Response:
-    access_token = create_access_token(user=user)
-    refresh_token = create_refresh_token(user=user)
+def set_tokens_in_response(response: JSONResponse, user: User) -> JSONResponse:
+    access_token: str = create_access_token(user=user)
+    refresh_token: str = create_refresh_token(user=user)
 
-    response.headers['Authorization'] = f'{jwt_settings.access_token_type} {access_token}'
+    response.headers["Authorization"] = f"{jwt_settings.access_token_type} {access_token}"
 
     response.set_cookie(
         key=cookies_settings.refresh_token_name,

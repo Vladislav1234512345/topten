@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException, status, Cookie
+from fastapi import Depends, HTTPException, Cookie
+from starlette import status
 from fastapi.security import OAuth2PasswordBearer
 from .utils import decode_jwt
 from jwt import InvalidTokenError
@@ -57,8 +58,8 @@ def validate_token_type(
 
 
 def validate_token_expire(payload: dict) -> bool:
-    current_token_exp: datetime = datetime(payload.get("exp"))
-    datetime_now: datetime = datetime.now(UTC)
+    current_token_exp: datetime = datetime.fromtimestamp(payload.get("exp"), tz=UTC)
+    datetime_now: datetime = datetime.now(tz=UTC)
     if current_token_exp > datetime_now:
         return True
 
@@ -68,11 +69,11 @@ def validate_token_expire(payload: dict) -> bool:
     )
 
 
-async def get_user_by_token_sub(
+async def get_user_by_token_uid(
     session: AsyncSessionDep,
     payload: dict
 ) -> User:
-    id: int = int(payload.get("sub"))
+    id: int = int(payload.get("uid"))
     unauthorized_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Неудалось авторизоваться"
@@ -98,7 +99,7 @@ class UserGetterFromAccessToken:
     ) -> User:
         validate_token_type(payload=payload, token_type=jwt_settings.jwt_access_token_type)
         validate_token_expire(payload=payload)
-        return await get_user_by_token_sub(session=session, payload=payload)
+        return await get_user_by_token_uid(session=session, payload=payload)
 
 
 class UserGetterFromRefreshToken:
@@ -109,7 +110,7 @@ class UserGetterFromRefreshToken:
     ) -> User:
         validate_token_type(payload=payload, token_type=jwt_settings.jwt_refresh_token_type)
         validate_token_expire(payload=payload)
-        return await get_user_by_token_sub(session=session, payload=payload)
+        return await get_user_by_token_uid(session=session, payload=payload)
 
 
 get_current_auth_user_for_access = UserGetterFromAccessToken()

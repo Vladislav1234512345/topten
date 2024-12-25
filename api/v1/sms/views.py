@@ -1,6 +1,6 @@
 from starlette.responses import JSONResponse
-
-from fastapi import APIRouter, Depends, status
+from starlette import status
+from fastapi import APIRouter, Depends
 from redis.asyncio import Redis
 from .validators import validate_phone_number
 
@@ -18,5 +18,5 @@ async def send_code(
 ) -> JSONResponse:
     sms_code = generate_sms_code()
     await redis_pool.set(phone_number, sms_code, ex=sms_settings.expire_time)
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Код отправлен", "sms_code": sms_code})
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Код отправлен"})
 

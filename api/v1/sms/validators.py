@@ -1,5 +1,6 @@
 import phonenumbers
-from fastapi import Form, HTTPException, status
+from fastapi import Form, HTTPException
+from starlette import status
 
 
 def validate_phone_number(
