@@ -2,8 +2,6 @@ from asyncio import sleep, get_event_loop
 
 from api.v1 import router as v1_router
 from fastapi.testclient import TestClient
-from datetime import timedelta
-from typing import Optional
 
 from config import logger
 
@@ -34,7 +32,7 @@ async def func_test_send_sms_code(phone_number: str) -> str:
     return str(response.json().get("sms_code"))
 
 
-async def func_test_auth(phone_number: str, sms_code: str) -> tuple[str, str]:
+async def func_test_auth(phone_number: str, sms_code: str) -> None:
     logger.debug("func_test_auth function is running")
     logger.info(f"phone_number = {phone_number}, sms_code = {sms_code}")
 
@@ -48,18 +46,15 @@ async def func_test_auth(phone_number: str, sms_code: str) -> tuple[str, str]:
     response = client.post(url='/v1/jwt/auth', data=auth_data)
 
     assert response.status_code == 200
-    assert response.json().get("access_token")
-    assert response.json().get("refresh_token")
+    assert response.json() == {'message': 'Авторизация прошла успешно'}
 
     str(response.json().get("access_token"))
-
-    return (str(response.json().get("access_token")), str(response.json().get("refresh_token")))
 
 
 async def func_test_send_sms_code_and_auth(
         phone_number: str,
         sleep_time: int = 0,
-) -> tuple[str, str]:
+) -> None:
     if (sleep_time < 0):
         raise TimeoutError("sleep_time must be greater than 0 or equal")
     logger.debug("func_test_send_sms_code_and_auth function is running")
@@ -69,7 +64,7 @@ async def func_test_send_sms_code_and_auth(
 
     logger.info(f"sms_code = {sms_code}")
 
-    return await func_test_auth(phone_number=phone_number, sms_code=sms_code)
+    await func_test_auth(phone_number=phone_number, sms_code=sms_code)
 
 
 @pytest.mark.asyncio
@@ -117,11 +112,11 @@ async def test_send_sms_code_and_auth():
 
 
     logger.info("Fifth user:")
-    access_token, refresh_token = await func_test_send_sms_code_and_auth(
+    await func_test_send_sms_code_and_auth(
         phone_number='+79228216018',
-        sleep_time=2
+        # sleep_time=2
     )
 
-    logger.info(f"access_token: {access_token}")
-    logger.info(f"refresh_token: {refresh_token}")
+    logger.info(f"client.cookies: {client.cookies.get("refresh_token")}")
+    logger.info(f"client.headers: {client.headers}")
 

@@ -31,12 +31,14 @@ class JWTSettings(BaseSettings):
     algorithm: str = 'RS256'
     access_token_expire_minutes: timedelta = timedelta(minutes=15)
     refresh_token_expire_days: timedelta = timedelta(days=7)
+    access_token_type: str = "Bearer"
+    jwt_access_token_type: str = "access"
+    jwt_refresh_token_type: str = "refresh"
 
     model_config = SettingsConfigDict(case_sensitive=False)
 
 
 class CookiesSettings(BaseSettings):
-    access_token_name: str = "access_token"
     refresh_token_name: str = "refresh_token"
     httponly: bool = True
     samesite: Literal['lax', 'strict', 'none'] | None = 'lax'

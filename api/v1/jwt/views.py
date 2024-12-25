@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Response, Form, HTTPException, Depends, status
+from fastapi import APIRouter, Response, HTTPException, Depends, status
 from fastapi.responses import JSONResponse
 from redis.asyncio import Redis
 
-from .utils import encode_jwt
 from models import User
-from config import jwt_settings, cookies_settings
 from database import AsyncSessionDep
 from sqlmodel import select
 from api.v1.sms.validators import validate_phone_number, validate_sms_code
 from api.v1.sms.utils import get_redis_pool
-from config import logger
+from config import logger, jwt_settings
+from .validators import get_current_auth_user_for_access, get_current_auth_user_for_refresh
+from .utils import create_access_token, create_refresh_token
+from config import cookies_settings
 
 
 router = APIRouter()
@@ -20,11 +21,11 @@ async def auth(
     session: AsyncSessionDep,
     response: Response,
     redis_pool: Redis = Depends(get_redis_pool),
-    phone_number: str = Form(),
-    sms_code: str = Form(),
+    phone_number: str = Depends(validate_phone_number),
+    sms_code: str = Depends(validate_sms_code),
 ) -> JSONResponse:
-    validate_phone_number(phone_number=phone_number)
-    validate_sms_code(sms_code=sms_code)
+    # validate_phone_number(phone_number=phone_number)
+    # validate_sms_code(sms_code=sms_code)
 
     stored_code: str = await redis_pool.get(phone_number)
 
@@ -51,21 +52,10 @@ async def auth(
     if not user:
         raise unauthorized_exception
 
-    jwt_payload = {
-        "sub": user.id,
-        "first_name": user.first_name,
-    }
+    access_token = create_access_token(user=user)
+    refresh_token = create_refresh_token(user=user)
 
-    access_token = encode_jwt(
-        payload=jwt_payload,
-        expire_timedelta=jwt_settings.access_token_expire_minutes,
-    )
-    refresh_token = encode_jwt(
-        payload=jwt_payload,
-        expire_timedelta=jwt_settings.refresh_token_expire_days,
-    )
-
-    response.headers['Authorization'] = f'Bearer {access_token}'
+    response.headers['Authorization'] = f'{jwt_settings.access_token_type} {access_token}'
 
     response.set_cookie(
         key=cookies_settings.refresh_token_name,
@@ -78,7 +68,33 @@ async def auth(
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
-            "access_token": access_token,
-            "refresh_token": refresh_token,
+            "message": "Авторизация прошла успешно"
+        },
+        headers=response.headers,
+    )
+
+
+@router.post('/refresh')
+def refresh(
+    response: Response,
+    user: User = Depends(get_current_auth_user_for_refresh)
+) -> JSONResponse:
+    access_token = create_access_token(user=user)
+    refresh_token = create_refresh_token(user=user)
+
+    response.headers['Authorization'] = f'{jwt_settings.access_token_type} {access_token}'
+
+    response.set_cookie(
+        key=cookies_settings.refresh_token_name,
+        value=refresh_token,
+        httponly=cookies_settings.httponly,
+        samesite=cookies_settings.samesite,
+        secure=cookies_settings.secure,
+    )
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "message": "Токены успешно обновлены",
         }
     )
