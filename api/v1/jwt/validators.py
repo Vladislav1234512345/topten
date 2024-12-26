@@ -3,13 +3,17 @@ from sqlmodel import select
 from starlette import status
 from fastapi.security import OAuth2PasswordBearer
 
-from .exceptions import unauthorized_exception
+from exceptions import (
+    invalid_email_exception,
+    invalid_access_token_exception,
+    refresh_token_not_found_exception,
+    invalid_refresh_token_exception, expired_token_exception
+)
 from .utils import decode_jwt
-from jwt import InvalidTokenError
+from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from models import User
 from database import AsyncSessionDep
 from typing import Annotated
-from datetime import datetime, UTC
 from config import jwt_settings
 
 
@@ -21,27 +25,22 @@ def get_current_access_token_payload(
 ) -> dict:
     try:
         payload: dict = decode_jwt(token=token)
-    except InvalidTokenError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Неверный access токен: {e}",
-        )
+    except ExpiredSignatureError:
+        raise expired_token_exception
+    except InvalidTokenError:
+        raise invalid_access_token_exception
     return payload
 
 
 def get_current_refresh_token_payload(refresh_token: Annotated[str | None, Cookie()]) -> dict:
     if refresh_token is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"refresh_token отсутствует в cookies"
-        )
+        raise refresh_token_not_found_exception
     try:
         payload: dict = decode_jwt(token=refresh_token)
-    except InvalidTokenError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Неверный refresh токен: {e}",
-        )
+    except ExpiredSignatureError:
+        raise expired_token_exception
+    except InvalidTokenError:
+        raise invalid_refresh_token_exception
     return payload
 
 
@@ -59,18 +58,6 @@ def validate_token_type(
     )
 
 
-def validate_token_expire(payload: dict) -> bool:
-    current_token_exp: datetime = datetime.fromtimestamp(payload.get("exp"), tz=UTC)
-    datetime_now: datetime = datetime.now(tz=UTC)
-    if current_token_exp > datetime_now:
-        return True
-
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=f"Просроченный токен ('exp' = {current_token_exp!r}, 'now = {datetime_now!r})"
-    )
-
-
 async def get_user_by_token_uid(
     session: AsyncSessionDep,
     payload: dict
@@ -80,11 +67,11 @@ async def get_user_by_token_uid(
     try:
         result = await session.execute(statement)
     except:
-        raise unauthorized_exception
+        raise invalid_email_exception
     user = result.scalar()
 
     if not user:
-        raise unauthorized_exception
+        raise invalid_email_exception
 
     return user
 
@@ -96,7 +83,6 @@ class UserGetterFromAccessToken:
         payload: dict = Depends(get_current_access_token_payload)
     ) -> User:
         validate_token_type(payload=payload, token_type=jwt_settings.jwt_access_token_type)
-        validate_token_expire(payload=payload)
         return await get_user_by_token_uid(session=session, payload=payload)
 
 
@@ -107,7 +93,6 @@ class UserGetterFromRefreshToken:
         payload: dict = Depends(get_current_refresh_token_payload)
     ) -> User:
         validate_token_type(payload=payload, token_type=jwt_settings.jwt_refresh_token_type)
-        validate_token_expire(payload=payload)
         return await get_user_by_token_uid(session=session, payload=payload)
 
 

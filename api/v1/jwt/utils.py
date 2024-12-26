@@ -27,18 +27,18 @@ def decode_jwt(
     public_key: str = jwt_settings.public_key_path.read_text(),
     algorithm: str = jwt_settings.algorithm
 ) -> dict:
-
     decoded_jwt = jwt.decode(jwt=token, key=public_key, algorithms=[algorithm])
-
     return decoded_jwt
 
 
 def create_access_token(user: User) -> str:
     jwt_payload_access_token = {
+        "type": jwt_settings.jwt_access_token_type,
         "uid": user.id,
         "sub": user.email,
-        "type": jwt_settings.jwt_access_token_type,
-        "first_name": user.first_name,
+        "name": user.first_name,
+        "admin": user.is_admin,
+        "stuff": user.is_stuff,
     }
 
     access_token = encode_jwt(
@@ -51,12 +51,10 @@ def create_access_token(user: User) -> str:
 
 def create_refresh_token(user: User) -> str:
     jwt_payload_refresh_token = {
+        "type": jwt_settings.jwt_refresh_token_type,
         "uid": user.id,
         "sub": user.email,
         "name": user.first_name,
-        "admin": user.is_admin,
-        "stuff": user.is_stuff,
-        "type": jwt_settings.jwt_refresh_token_type,
     }
 
     refresh_token = encode_jwt(

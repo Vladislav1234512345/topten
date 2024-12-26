@@ -47,12 +47,14 @@ class CookiesSettings(BaseSettings):
     model_config = SettingsConfigDict(case_sensitive=False)
 
 
-class RedisSettings(BaseSettings):
+class TasksSettings(BaseSettings):
     REDIS_HOST: str
-    REDIS_PORT: str
+    REDIS_PORT: int
+    RABBITMQ_HOST: str
+    RABBITMQ_PORT: int
 
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / '.env._redis',
+        env_file=BASE_DIR / '.env.tasks',
         env_file_encoding='utf-8',
         case_sensitive=False
     )
@@ -60,6 +62,9 @@ class RedisSettings(BaseSettings):
 
 class EmailSettings(BaseSettings):
     expire_time: timedelta = timedelta(minutes=5)
+
+    EMAIL_NAME: str
+    EMAIL_APP_PASSWORD: str # Google пароль приложения, url = https://myaccount.google.com/apppasswords
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / '.env.email',
@@ -74,6 +79,6 @@ jwt_settings = JWTSettings()
 
 cookies_settings = CookiesSettings()
 
-redis_settings = RedisSettings()
+tasks_settings = TasksSettings()
 
 email_settings = EmailSettings()

@@ -4,7 +4,7 @@ from redis.asyncio import Redis
 from api.v1 import router as v1_router
 from fastapi.testclient import TestClient
 
-from config import logger, redis_settings, jwt_settings, cookies_settings
+from config import logger, tasks_settings, jwt_settings, cookies_settings
 
 import pytest
 
@@ -64,7 +64,7 @@ async def func_test_login(email: str, password: str, email_code: str) -> None:
 @pytest.mark.asyncio
 async def test_send_email_code_than_signup_than_login_than_refresh_tokens():
     email="tolerantniy1234@gmail.com"
-    redis_pool = Redis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT)
+    redis_pool = Redis(host=tasks_settings.REDIS_HOST, port=tasks_settings.REDIS_PORT)
 
     await func_test_send_email(email=email)
     email_code_encoded: bytes = await redis_pool.get(email)

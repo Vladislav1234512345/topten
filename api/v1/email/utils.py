@@ -3,7 +3,7 @@ from string import digits
 from redis.asyncio import from_url, Redis
 from typing import AsyncIterator
 
-from config import redis_settings
+from config import tasks_settings
 
 
 def generate_email_code(length: int = 6):
@@ -12,7 +12,7 @@ def generate_email_code(length: int = 6):
 
 async def get_redis_pool() -> AsyncIterator[Redis]:
     redis = await from_url(
-        f"redis://{redis_settings.REDIS_HOST}:{redis_settings.REDIS_PORT}",
+        f"redis://{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
         decode_responses=True
     )
     try:
