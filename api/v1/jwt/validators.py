@@ -1,17 +1,19 @@
 from fastapi import Depends, HTTPException, Cookie
+from sqlmodel import select
 from starlette import status
 from fastapi.security import OAuth2PasswordBearer
+
+from .exceptions import unauthorized_exception
 from .utils import decode_jwt
 from jwt import InvalidTokenError
 from models import User
 from database import AsyncSessionDep
-from sqlmodel import select
 from typing import Annotated
 from datetime import datetime, UTC
 from config import jwt_settings
 
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/jwt/auth")
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/jwt/login")
 
 
 def get_current_access_token_payload(
@@ -74,10 +76,6 @@ async def get_user_by_token_uid(
     payload: dict
 ) -> User:
     id: int = int(payload.get("uid"))
-    unauthorized_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Неудалось авторизоваться"
-    )
     statement = select(User).filter_by(id=id)
     try:
         result = await session.execute(statement)

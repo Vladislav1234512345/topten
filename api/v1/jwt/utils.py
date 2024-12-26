@@ -1,3 +1,4 @@
+import bcrypt
 import jwt
 from config import jwt_settings
 from datetime import timedelta, datetime, UTC
@@ -35,7 +36,7 @@ def decode_jwt(
 def create_access_token(user: User) -> str:
     jwt_payload_access_token = {
         "uid": user.id,
-        "sub": user.phone_number,
+        "sub": user.email,
         "type": jwt_settings.jwt_access_token_type,
         "first_name": user.first_name,
     }
@@ -51,7 +52,10 @@ def create_access_token(user: User) -> str:
 def create_refresh_token(user: User) -> str:
     jwt_payload_refresh_token = {
         "uid": user.id,
-        "sub": user.phone_number,
+        "sub": user.email,
+        "name": user.first_name,
+        "admin": user.is_admin,
+        "stuff": user.is_stuff,
         "type": jwt_settings.jwt_refresh_token_type,
     }
 
@@ -78,3 +82,12 @@ def set_tokens_in_response(response: JSONResponse, user: User) -> JSONResponse:
     )
 
     return response
+
+
+def hash_password(password: str) -> bytes:
+    salt: bytes = bcrypt.gensalt()
+    return bcrypt.hashpw(password=password.encode(), salt=salt)
+
+
+def validate_password(password: str, hashed_password: bytes) -> bool:
+    return bcrypt.checkpw(password=password.encode(), hashed_password=hashed_password)

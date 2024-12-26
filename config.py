@@ -58,11 +58,11 @@ class RedisSettings(BaseSettings):
     )
 
 
-class SMSSettings(BaseSettings):
+class EmailSettings(BaseSettings):
     expire_time: timedelta = timedelta(minutes=5)
 
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / '.env.sms',
+        env_file=BASE_DIR / '.env.email',
         env_file_encoding='utf-8',
         case_sensitive=False,
         extra='allow'
@@ -76,4 +76,4 @@ cookies_settings = CookiesSettings()
 
 redis_settings = RedisSettings()
 
-sms_settings = SMSSettings()
+email_settings = EmailSettings()

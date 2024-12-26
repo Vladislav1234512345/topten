@@ -6,7 +6,7 @@ from typing import AsyncIterator
 from config import redis_settings
 
 
-def generate_sms_code(length: int = 6):
+def generate_email_code(length: int = 6):
     return ''.join(sample(digits, length))
 
 

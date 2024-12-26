@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, Field
+from pydantic import EmailStr
 
 
 class Base(SQLModel):
@@ -8,6 +9,9 @@ class Base(SQLModel):
 class User(Base, table=True):
     __tablename__ = "users"
 
-    phone_number: str = Field(title="Phone number", unique=True)
-    first_name: str = Field(title="First name")
-    is_admin: bool = Field(title="Admin", default=False)
+    email: EmailStr = Field(title="Email", unique=True, nullable=False)
+    password: bytes = Field(title="Password", nullable=False, min_length=8)
+    first_name: str = Field(title="First name", nullable=False, min_length=1)
+    is_admin: bool = Field(title="Admin", default=False, nullable=True)
+    is_stuff: bool = Field(title="Stuff", default=False, nullable=True)
+    is_active: bool = Field(title="Active", default=True, nullable=True)
