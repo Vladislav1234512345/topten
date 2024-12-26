@@ -1,7 +1,5 @@
-from asyncio import sleep, get_event_loop
+from asyncio import get_event_loop
 from redis.asyncio import Redis
-from fastapi import Depends
-from api.v1.email.utils import get_redis_pool
 
 from api.v1 import router as v1_router
 from fastapi.testclient import TestClient

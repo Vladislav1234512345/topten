@@ -18,4 +18,5 @@ async def get_redis_pool() -> AsyncIterator[Redis]:
     try:
         yield redis
     finally:
+
         await redis.aclose()

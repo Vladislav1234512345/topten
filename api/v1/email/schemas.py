@@ -1,5 +1,6 @@
-from pydantic import EmailStr, BaseModel
+from pydantic import BaseModel, EmailStr, Field
 
 
-class EmailSchema(BaseModel):
+class UserSendEmailSchema(BaseModel):
     email: EmailStr
+    password: str = Field(min_length=8)
