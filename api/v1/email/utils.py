@@ -1,22 +1,25 @@
 from random import sample
-from string import digits
+from string import digits, ascii_letters
 from redis.asyncio import from_url, Redis
-from typing import AsyncIterator
+from typing import AsyncIterator, LiteralString
 
 from config import tasks_settings
 
 
-def generate_email_code(length: int = 6):
-    return ''.join(sample(digits, length))
+def generate_password(symbols: LiteralString = digits + ascii_letters, length: int = 100) -> str:
+    return ''.join(sample(symbols, length))
+
+
+def generate_verification_code(symbols: LiteralString = digits, length: int = 6) -> str:
+    return generate_password(symbols=symbols, length=length)
 
 
 async def get_redis_pool() -> AsyncIterator[Redis]:
-    redis = await from_url(
+    redis: Redis = await from_url(
         f"redis://{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
         decode_responses=True
     )
     try:
         yield redis
     finally:
-
         await redis.aclose()

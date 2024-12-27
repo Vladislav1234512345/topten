@@ -1,4 +1,4 @@
-from aiohttp.abc import HTTPException
+from fastapi import HTTPException
 
 from models import Base
 from database import AsyncSessionDep
@@ -9,7 +9,7 @@ async def create_db_table_instance(instance: Base, session: AsyncSessionDep, exc
     session.add(instance)
     try:
         await session.commit()
-    except Exception as e:
+    except Exception:
         raise exception
     await session.refresh(instance)
 

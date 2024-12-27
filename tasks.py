@@ -3,6 +3,8 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Optional
+
 from celery import Celery
 from config import tasks_settings, email_settings, logger
 
@@ -15,13 +17,21 @@ app = Celery(
 
 
 @app.task
-def send_email_verification_code(receiver_email: str, code: str) -> bool:
-    subject = "Код подтверждения"
-    body = f"Ваш код подтверждения: {code}"
-    return send_email(receiver_email=receiver_email, subject=subject, body=body)
+def send_email_reset_password(receiver_email: str, key: str) -> None:
+    subject = "Сброс пароля"
+    body = f"Ваш ключ для сброса пароля: {key}"
+    send_email(receiver_email=receiver_email, subject=subject, body=body)
+
 
 @app.task
-def send_email(receiver_email: str, subject: str, body: str, attachment_path: str = None) -> bool:
+def send_email_verification_code(receiver_email: str, code: str) -> None:
+    subject = "Код авторизации"
+    body = f"Ваш код подтверждения: {code}"
+    send_email(receiver_email=receiver_email, subject=subject, body=body)
+
+
+@app.task
+def send_email(receiver_email: str, subject: str, body: str, attachment_path: Optional[str] = None) -> None:
     msg = MIMEMultipart()
     msg["From"] = email_settings.EMAIL_NAME
     msg["To"] = receiver_email

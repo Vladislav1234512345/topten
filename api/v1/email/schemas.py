@@ -13,6 +13,10 @@ class EmailPasswordSchema(EmailSchema):
     password: str = Field(min_length=8)
 
 
+class EmailTwoPasswordsSchema(EmailPasswordSchema):
+    password2: str = Field(min_length=8)
+
+
 class EmailVerificationCodeSchema(EmailSchema, VerificationCodeSchema):
     pass
 

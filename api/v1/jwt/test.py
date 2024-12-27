@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from api.v1.jwt import router as jwt_router
-from api.v1.email.utils import generate_email_code
+from api.v1.email.utils import generate_verification_code
 
 
 client = TestClient(app=jwt_router)
@@ -15,5 +15,5 @@ def func_test_auth(phone_number: str, sms_code: str):
 
 
 def test_auth():
-    func_test_auth(phone_number='+77053872095', sms_code=generate_email_code())
+    func_test_auth(phone_number='+77053872095', sms_code=generate_verification_code())
 

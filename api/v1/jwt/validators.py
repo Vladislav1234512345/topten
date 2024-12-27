@@ -13,7 +13,7 @@ from .utils import decode_jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from models import User
 from database import AsyncSessionDep
-from typing import Annotated
+from typing import Annotated, Any
 from config import jwt_settings
 
 
@@ -22,9 +22,9 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/jwt/login")
 
 def get_current_access_token_payload(
         token: str = Depends(oauth2_schema)
-) -> dict:
+) -> dict[str, Any]:
     try:
-        payload: dict = decode_jwt(token=token)
+        payload: dict[str, Any] = decode_jwt(token=token)
     except ExpiredSignatureError:
         raise expired_token_exception
     except InvalidTokenError:
@@ -32,11 +32,11 @@ def get_current_access_token_payload(
     return payload
 
 
-def get_current_refresh_token_payload(refresh_token: Annotated[str | None, Cookie()]) -> dict:
+def get_current_refresh_token_payload(refresh_token: Annotated[str | None, Cookie()]) -> dict[str, Any]:
     if refresh_token is None:
         raise refresh_token_not_found_exception
     try:
-        payload: dict = decode_jwt(token=refresh_token)
+        payload: dict[str, Any] = decode_jwt(token=refresh_token)
     except ExpiredSignatureError:
         raise expired_token_exception
     except InvalidTokenError:
@@ -45,7 +45,7 @@ def get_current_refresh_token_payload(refresh_token: Annotated[str | None, Cooki
 
 
 def validate_token_type(
-        payload: dict,
+        payload: dict[str, Any],
         token_type: str
 ) -> bool:
     current_token_type = str(payload.get("type"))
@@ -60,9 +60,9 @@ def validate_token_type(
 
 async def get_user_by_token_uid(
     session: AsyncSessionDep,
-    payload: dict
+    payload: dict[str, Any]
 ) -> User:
-    id: int = int(payload.get("uid"))
+    id: int= int(payload.get("uid"))
     statement = select(User).filter_by(id=id)
     try:
         result = await session.execute(statement)
@@ -80,7 +80,7 @@ class UserGetterFromAccessToken:
     async def __call__(
         self,
         session: AsyncSessionDep,
-        payload: dict = Depends(get_current_access_token_payload)
+        payload: dict[str, Any] = Depends(get_current_access_token_payload)
     ) -> User:
         validate_token_type(payload=payload, token_type=jwt_settings.jwt_access_token_type)
         return await get_user_by_token_uid(session=session, payload=payload)
@@ -90,7 +90,7 @@ class UserGetterFromRefreshToken:
     async def __call__(
         self,
         session: AsyncSessionDep,
-        payload: dict = Depends(get_current_refresh_token_payload)
+        payload: dict[str, Any] = Depends(get_current_refresh_token_payload)
     ) -> User:
         validate_token_type(payload=payload, token_type=jwt_settings.jwt_refresh_token_type)
         return await get_user_by_token_uid(session=session, payload=payload)

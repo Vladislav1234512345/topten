@@ -5,10 +5,11 @@ from datetime import timedelta, datetime, UTC
 from models import User
 from starlette.responses import JSONResponse
 from config import cookies_settings
+from typing import Any
 
 
 def encode_jwt(
-    payload: dict,
+    payload: dict[str, Any],
     expire_timedelta: timedelta,
     private_key: str = jwt_settings.private_key_path.read_text(),
     algorithm: str = jwt_settings.algorithm,
@@ -26,8 +27,8 @@ def decode_jwt(
     token: str | bytes,
     public_key: str = jwt_settings.public_key_path.read_text(),
     algorithm: str = jwt_settings.algorithm
-) -> dict:
-    decoded_jwt = jwt.decode(jwt=token, key=public_key, algorithms=[algorithm])
+) -> dict[str, Any]:
+    decoded_jwt: dict[str, Any] = jwt.decode(jwt=token, key=public_key, algorithms=[algorithm])
     return decoded_jwt
 
 
