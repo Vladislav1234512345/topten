@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+from typing import AsyncGenerator
 from fastapi import FastAPI
 import uvicorn
 from api import router as api_router
@@ -7,7 +8,7 @@ from database import create_db_and_tables
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> None:
+async def lifespan(app: FastAPI) -> AsyncGenerator:
     await create_db_and_tables()
 
     yield

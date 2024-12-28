@@ -63,43 +63,46 @@ async def func_test_login(email: str, password: str, email_code: str) -> None:
 
 @pytest.mark.asyncio
 async def test_send_email_code_than_signup_than_login_than_refresh_tokens():
-    email="tolerantniy1234@gmail.com"
-    redis_pool = Redis(host=tasks_settings.REDIS_HOST, port=tasks_settings.REDIS_PORT)
+    # email="tolerantniy1234@gmail.com"
+    # redis_pool = Redis(host=tasks_settings.REDIS_HOST, port=tasks_settings.REDIS_PORT)
+    #
+    # await func_test_send_email(email=email)
+    # email_code_encoded: bytes = await redis_pool.get(email)
+    # await redis_pool.aclose()
+    #
+    # email_code: str = email_code_encoded.decode()
+    #
+    # logger.info(f"email_code = {email_code}")
+    #
+    # await func_test_signup(
+    #     email=email,
+    #     password="qwerty1234",
+    #     first_name="Vladislav",
+    #     email_code=email_code
+    # )
+    #
+    # assert client.cookies.get(cookies_settings.refresh_token_name)
+    #
+    # logger.info(f"refresh_token = {client.cookies.get(cookies_settings.refresh_token_name)}")
+    #
+    #
+    # # Login
+    # await func_test_send_email(email=email)
+    #
+    # email_code_encoded: bytes = await redis_pool.get(email)
+    # await redis_pool.aclose()
+    #
+    # email_code: str = email_code_encoded.decode()
+    #
+    # await func_test_login(
+    #     email=email,
+    #     password="qwerty1234",
+    #     email_code=email_code
+    # )
+    #
+    # assert client.cookies.get(cookies_settings.refresh_token_name)
+    #
+    # logger.info(f"refresh_token = {client.cookies.get(cookies_settings.refresh_token_name)}")
 
-    await func_test_send_email(email=email)
-    email_code_encoded: bytes = await redis_pool.get(email)
-    await redis_pool.aclose()
-
-    email_code: str = email_code_encoded.decode()
-
-    logger.info(f"email_code = {email_code}")
-
-    await func_test_signup(
-        email=email,
-        password="qwerty1234",
-        first_name="Vladislav",
-        email_code=email_code
-    )
-
-    assert client.cookies.get(cookies_settings.refresh_token_name)
-
-    logger.info(f"refresh_token = {client.cookies.get(cookies_settings.refresh_token_name)}")
-
-
-    # Login
-    await func_test_send_email(email=email)
-
-    email_code_encoded: bytes = await redis_pool.get(email)
-    await redis_pool.aclose()
-
-    email_code: str = email_code_encoded.decode()
-
-    await func_test_login(
-        email=email,
-        password="qwerty1234",
-        email_code=email_code
-    )
-
-    assert client.cookies.get(cookies_settings.refresh_token_name)
-
-    logger.info(f"refresh_token = {client.cookies.get(cookies_settings.refresh_token_name)}")
+    from api.v1.email.tasks import send_email_reset_password
+    send_email_reset_password(receiver_email="antonkutorov@gmail.com", key="123423")

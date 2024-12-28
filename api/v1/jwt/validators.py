@@ -62,8 +62,8 @@ async def get_user_by_token_uid(
     session: AsyncSessionDep,
     payload: dict[str, Any]
 ) -> User:
-    id: int= int(payload.get("uid"))
-    statement = select(User).filter_by(id=id)
+    user_id: int = int(payload.get("uid"))
+    statement = select(User).filter_by(id=user_id)
     try:
         result = await session.execute(statement)
     except:

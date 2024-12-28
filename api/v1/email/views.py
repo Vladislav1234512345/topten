@@ -11,8 +11,7 @@ from sqlmodel import select
 from models import User
 from exceptions import invalid_password_exception, invalid_email_exception, too_many_requests_exception
 from api.v1.jwt.utils import validate_password
-from tasks import send_email_verification_code, send_email_reset_password
-from .validators import validate_email_code
+from .tasks import send_email_reset_password, send_email_verification_code
 
 router = APIRouter()
 

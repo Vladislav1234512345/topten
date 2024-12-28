@@ -4,4 +4,4 @@ __pycache__/
 media/
 
 *.pem
-*.env
+env_files/
