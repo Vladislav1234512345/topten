@@ -136,6 +136,8 @@ async def reset_password(
     except Exception:
         raise reset_user_password_exception
 
+    await redis_pool.delete(reset_password_redis_key)
+
     return JSONResponse(
         content={"message": "Пароль был успешно обновлен."},
         status_code=status.HTTP_200_OK

@@ -19,7 +19,7 @@ class DatabaseSettings(BaseSettings):
     POSTGRES_DB: str
 
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / '.env.db',
+        env_file=BASE_DIR / 'env_files/.env.db',
         env_file_encoding="utf-8",
         case_sensitive=False,
     )
@@ -54,22 +54,22 @@ class TasksSettings(BaseSettings):
     RABBITMQ_PORT: int
 
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / '.env.tasks',
+        env_file=BASE_DIR / 'env_files/.env.tasks',
         env_file_encoding='utf-8',
         case_sensitive=False
     )
 
 
 class EmailSettings(BaseSettings):
+    EMAIL_NAME: str
+    EMAIL_APP_PASSWORD: str # Google пароль приложения, url = https://myaccount.google.com/apppasswords
+
     expire_time: timedelta = timedelta(minutes=5)
     verification_code_name: str = "code"
     reset_password_name: str = "password"
 
-    EMAIL_NAME: str
-    EMAIL_APP_PASSWORD: str # Google пароль приложения, url = https://myaccount.google.com/apppasswords
-
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / '.env.email',
+        env_file=BASE_DIR / 'env_files/.env.email',
         env_file_encoding='utf-8',
         case_sensitive=False,
         extra='allow'
