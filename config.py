@@ -62,7 +62,7 @@ class TasksSettings(BaseSettings):
 
 class EmailSettings(BaseSettings):
     EMAIL_NAME: str
-    EMAIL_APP_PASSWORD: str # Google пароль приложения, url = https://myaccount.google.com/apppasswords
+    EMAIL_APP_PASSWORD: str
 
     expire_time: timedelta = timedelta(minutes=5)
     verification_code_name: str = "code"
