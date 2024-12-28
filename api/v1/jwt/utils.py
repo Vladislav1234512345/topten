@@ -38,8 +38,6 @@ def create_access_token(user: User) -> str:
         "uid": user.id,
         "sub": user.email,
         "name": user.first_name,
-        "admin": user.is_admin,
-        "stuff": user.is_stuff,
     }
 
     access_token = encode_jwt(

@@ -12,6 +12,14 @@ git clone https://github.com/Vladislav1234512345/topten .
 
 **Step-2:**
 ```shell
+# Creating env_files directory with files
+git clone https://github.com/Vladislav1234512345/topten .
+```
+
+***
+
+**Step-2:**
+```shell
 # Install all requirements
 pip install -r requirements.txt
 ```
@@ -47,4 +55,3 @@ celery -A tasks worker --loglevel=INFO --pool=solo
 # Run the project
 python main.py
 ```
-
