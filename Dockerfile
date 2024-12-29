@@ -22,11 +22,9 @@ RUN mkdir -p env_files certs
 
 # Копирование исходного кода
 COPY . .
-# Создаем виртуальное окружение
-RUN python -m venv venv
 
-# Активируем виртуальное окружение и устанавливаем зависимости из requirements.txt
-RUN . venv/bin/activate && pip install -r requirements.txt --verbose
+# Устанавливаем зависимости из requirements.txt
+RUN pip install -r requirements.txt --verbose
 
 # Обновление pip
 RUN pip install --upgrade pip
