@@ -5,8 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
-from config import email_settings, logger
-from tasks import app
+from src.container import app, logger, email_settings
 
 
 @app.task

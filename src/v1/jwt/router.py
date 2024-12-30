@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from starlette.responses import JSONResponse
 from starlette import status
 
-from models import User
-from .validators import get_current_auth_user_for_refresh
+from src.models import User
+from .dependencies import get_current_auth_user_for_refresh
 from .utils import set_tokens_in_response
 
 router = APIRouter()

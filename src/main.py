@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from fastapi import FastAPI
 import uvicorn
-from api import router as api_router
+from v1 import router as v1_router
 from database import create_db_and_tables
 
 
@@ -16,7 +16,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(router=api_router)
+app.include_router(router=v1_router)
 
 
 if __name__ == '__main__':

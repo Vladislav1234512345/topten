@@ -60,7 +60,7 @@ Read certs/README.md file with instruction how to create rsa keys
 **Step-3:**
 ```shell
 # Install all requirements
-pip install -r requirements.txt
+pip install -r base.txt
 ```
 
 ***

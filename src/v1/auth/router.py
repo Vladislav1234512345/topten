@@ -4,27 +4,25 @@ from sqlmodel import select
 from starlette import status
 from starlette.responses import JSONResponse
 
-from api.v1.email.utils import get_redis_pool
-from api.v1.email.validators import validate_email_code
-from api.v1.jwt.utils import hash_password, set_tokens_in_response, validate_password
-from config import email_settings
-from database import AsyncSessionDep
-from functions import create_db_table_instance
-from models import User
-from api.v1.email.schemas import (
+from src.v1.email.utils import get_redis_pool
+from src.v1.email.dependencies import validate_email_code
+from src.v1.jwt.utils import hash_password, set_tokens_in_response, validate_password
+from src.container import email_settings
+from src.database import AsyncSessionDep
+from src.utils import create_db_table_instance
+from src.models import User
+from src.v1.email.schemas import (
     EmailPasswordFirstNameVerificationCodeSchema,
     EmailPasswordVerificationCodeSchema,
     EmailTwoPasswordsSchema
 )
-from exceptions import (
+from src.exceptions import (
     invalid_email_code_exception,
-    current_user_yet_exists_exception,
     invalid_email_exception,
-    invalid_password_exception,
-    different_passwords_exception,
-    invalid_reset_password_key_exception,
-    reset_user_password_exception
+    invalid_password_exception
 )
+from src.v1.auth.exceptions import invalid_reset_password_key_exception, reset_user_password_exception, \
+    different_passwords_exception, current_user_yet_exists_exception
 
 router = APIRouter()
 

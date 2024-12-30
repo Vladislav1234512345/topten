@@ -3,21 +3,19 @@ from sqlmodel import select
 from starlette import status
 from fastapi.security import OAuth2PasswordBearer
 
-from exceptions import (
-    invalid_email_exception,
-    invalid_access_token_exception,
-    refresh_token_not_found_exception,
-    invalid_refresh_token_exception, expired_token_exception
+from src.exceptions import (
+    invalid_email_exception
 )
+from .exceptions import invalid_access_token_exception, invalid_refresh_token_exception, \
+    refresh_token_not_found_exception, expired_token_exception
 from .utils import decode_jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
-from models import User
-from database import AsyncSessionDep
+from src.models import User
+from src.database import AsyncSessionDep
 from typing import Annotated, Any
-from config import jwt_settings
+from src.container import jwt_settings
 
-
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/jwt/login")
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="/src/v1/jwt/login")
 
 
 def get_current_access_token_payload(

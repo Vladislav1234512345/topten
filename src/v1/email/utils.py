@@ -3,7 +3,7 @@ from string import digits, ascii_letters
 from redis.asyncio import from_url, Redis
 from typing import AsyncIterator, LiteralString
 
-from config import tasks_settings
+from src.container import tasks_settings
 
 
 def generate_password(

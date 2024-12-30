@@ -4,13 +4,13 @@ from fastapi import APIRouter, Depends
 from redis.asyncio import Redis
 
 from .schemas import EmailPasswordSchema, EmailSchema
-from database import AsyncSessionDep
+from src.database import AsyncSessionDep
 from .utils import generate_verification_code, get_redis_pool, generate_password
-from config import email_settings
+from src.container import email_settings
 from sqlmodel import select
-from models import User
-from exceptions import invalid_password_exception, invalid_email_exception, too_many_requests_exception
-from api.v1.jwt.utils import validate_password
+from src.models import User
+from src.exceptions import invalid_password_exception, invalid_email_exception, too_many_requests_exception
+from src.v1.jwt.utils import validate_password
 from .tasks import send_email_reset_password, send_email_verification_code
 
 router = APIRouter()

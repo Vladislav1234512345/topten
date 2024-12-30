@@ -1,5 +1,5 @@
 from fastapi import Form
-from exceptions import invalid_email_code_exception
+from src.exceptions import invalid_email_code_exception
 
 
 def validate_email_code(

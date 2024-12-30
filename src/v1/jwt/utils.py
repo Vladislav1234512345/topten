@@ -1,10 +1,9 @@
 import bcrypt
 import jwt
-from config import jwt_settings
+from src.container import jwt_settings, cookies_settings
 from datetime import timedelta, datetime, UTC
-from models import User
+from src.models import User
 from starlette.responses import JSONResponse
-from config import cookies_settings
 from typing import Any
 
 

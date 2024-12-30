@@ -23,12 +23,12 @@ RUN mkdir -p env_files certs
 # Копирование исходного кода
 COPY . .
 
-# Устанавливаем зависимости из requirements.txt
-RUN pip install -r requirements.txt --verbose
+# Устанавливаем зависимости из base.txt
+RUN pip install -r requirements/dev.txt --verbose
 
 # Обновление pip
 RUN pip install --upgrade pip
 
 # Указываем, что при запуске контейнера будет активироваться виртуальное окружение
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port 8000"]
 
