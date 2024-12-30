@@ -2,11 +2,22 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from container import BASE_DIR
 
 
+class WebSettings(BaseSettings):
+    WEBAPP_HOST: str
+    WEBAPP_PORT: int
+
+    model_config = SettingsConfigDict(
+        env_file=BASE_DIR / 'env_files/.env',
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+    )
+
+
 class DatabaseSettings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
-    POSTGRES_PORT: str
+    POSTGRES_PORT: int
     POSTGRES_DB: str
 
     @property
@@ -47,5 +58,6 @@ class TasksSettings(BaseSettings):
     )
 
 
+web_settings = WebSettings()
 database_settings = DatabaseSettings()
 tasks_settings = TasksSettings()

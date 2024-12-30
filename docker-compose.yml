@@ -26,7 +26,7 @@ services:
   backend:
       image: vladislav1234512345/topten:1.0.1
       command: >
-        sh -c "celery -A src/tasks worker --loglevel=INFO --pool=solo & uvicorn src.main:app --host 0.0.0.0 --port 8000"
+        sh -c "celery -A src/tasks worker --loglevel=INFO --pool=solo & python src/main.py"
       volumes:
         - ./env_files:/usr/src/app/env_files
         - ./env_files:/usr/src/app/env_files

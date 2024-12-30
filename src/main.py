@@ -11,6 +11,7 @@ from fastapi import FastAPI
 import uvicorn
 from v1 import router as v1_router
 from database import create_db_and_tables
+from config import web_settings
 
 
 @asynccontextmanager
@@ -26,4 +27,4 @@ app.include_router(router=v1_router)
 
 
 if __name__ == '__main__':
-    uvicorn.run(app=app, host='localhost', port=8000)
+    uvicorn.run(app=app, host=web_settings.WEBAPP_HOST, port=web_settings.WEBAPP_PORT)
