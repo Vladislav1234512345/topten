@@ -1,28 +1,19 @@
 from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlmodel import SQLModel
 
-from container import database_settings
-
-postgresql_url = (
-    f"postgresql+asyncpg://"
-    f"{database_settings.POSTGRES_USER}:{database_settings.POSTGRES_PASSWORD}"
-    f"@{database_settings.POSTGRES_HOST}:{database_settings.POSTGRES_PORT}"
-    f"/{database_settings.POSTGRES_DB}"
-)
-
-engine = create_async_engine(url=postgresql_url, echo=True)
+from config import database_settings
 
 
-async_session = sessionmaker(
-    bind=engine, class_=AsyncSession, expire_on_commit=False
+engine = create_async_engine(
+    url=database_settings.POSTGRES_URL_asyncpg,
+    echo=True
 )
 
 
-engine = create_async_engine(postgresql_url)
+async_session_factory = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
 
 async def create_db_and_tables() -> None:
@@ -30,9 +21,9 @@ async def create_db_and_tables() -> None:
         await conn.run_sync(SQLModel.metadata.create_all)
 
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session() as session:
-        yield session
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session_factory() as async_session:
+        yield async_session
 
 
-AsyncSessionDep = Annotated[AsyncSession, Depends(get_session)]
+AsyncSessionDep = Annotated[AsyncSession, Depends(get_async_session)]

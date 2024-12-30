@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
 from container import BASE_DIR
 
 
@@ -10,10 +9,28 @@ class DatabaseSettings(BaseSettings):
     POSTGRES_PORT: str
     POSTGRES_DB: str
 
+    @property
+    def POSTGRES_URL_psycopg(self):
+        return (
+            f"postgresql+psycopg://"
+            f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}"
+            f"/{self.POSTGRES_DB}"
+        )
+
+    @property
+    def POSTGRES_URL_asyncpg(self):
+        return (
+            f"postgresql+asyncpg://"
+            f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}"
+            f"/{self.POSTGRES_DB}"
+        )
+
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / 'env_files/.env.db',
         env_file_encoding="utf-8",
-        case_sensitive=False,
+        case_sensitive=True,
     )
 
 
@@ -26,7 +43,9 @@ class TasksSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / 'env_files/.env.tasks',
         env_file_encoding='utf-8',
-        case_sensitive=False
+        case_sensitive=True
     )
 
 
+database_settings = DatabaseSettings()
+tasks_settings = TasksSettings()

@@ -1,5 +1,11 @@
-from contextlib import asynccontextmanager
+import sys
+import os
 
+
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
+
+
+from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from fastapi import FastAPI
 import uvicorn

@@ -17,7 +17,7 @@ class JWTSettings(BaseSettings):
     jwt_access_token_type: str = "access"
     jwt_refresh_token_type: str = "refresh"
 
-    model_config = SettingsConfigDict(case_sensitive=False)
+    model_config = SettingsConfigDict(case_sensitive=True)
 
 
 class CookiesSettings(BaseSettings):
@@ -26,4 +26,8 @@ class CookiesSettings(BaseSettings):
     samesite: Literal['lax', 'strict', 'none'] | None = 'lax'
     secure: bool = False
 
-    model_config = SettingsConfigDict(case_sensitive=False)
+    model_config = SettingsConfigDict(case_sensitive=True)
+
+
+jwt_settings = JWTSettings()
+cookies_settings = CookiesSettings()

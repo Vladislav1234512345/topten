@@ -1,15 +1,16 @@
 from fastapi import APIRouter, Depends
 from redis.asyncio import Redis
-from sqlmodel import select
+from sqlalchemy import select
 from starlette import status
 from starlette.responses import JSONResponse
 
+from src.utils import select_instance
 from src.v1.email.utils import get_redis_pool
 from src.v1.email.dependencies import validate_email_code
 from src.v1.jwt.utils import hash_password, set_tokens_in_response, validate_password
-from src.container import email_settings
+from src.v1.email.config import email_settings
 from src.database import AsyncSessionDep
-from src.utils import create_db_table_instance
+from src.utils import insert_instance
 from src.models import User
 from src.v1.email.schemas import (
     EmailPasswordFirstNameVerificationCodeSchema,
@@ -42,7 +43,7 @@ async def signup(
     if stored_code != email_code:
         raise invalid_email_code_exception
     # Создание экземпляра пользователя в базе данных
-    user: User = await create_db_table_instance(
+    user: User = await insert_instance(
         instance=User(
             email=user_data.email,
             password=hash_password(password=user_data.password),
@@ -69,13 +70,14 @@ async def login(
     redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
     verification_code_redis_key = f"{email_settings.verification_code_name}:{user_data.email}"
-    # Поиск пользователя в базе данных по почте
-    statement = select(User).filter_by(email=user_data.email)
-    try:
-        result = await session.execute(statement)
-    except:
-        raise invalid_email_exception
-    user = result.scalar()
+    # # Поиск пользователя в базе данных по почте
+    # statement = select(User).filter_by(email=user_data.email)
+    # try:
+    #     result = await session.execute(statement)
+    # except:
+    #     raise invalid_email_exception
+    # user = result.scalar()
+    user = await select_instance(cls=User, session=session, email=user_data.email)
 
     if not user:
         raise invalid_email_exception
@@ -110,17 +112,18 @@ async def reset_password(
     reset_password_redis_key = f"{email_settings.reset_password_name}:{user_data.email}"
     # Получение email кода из redis
     stored_reset_password_key: str = await redis_pool.get(reset_password_redis_key)
-    # Поиск пользователя в базе данных по почте
-    statement = select(User).filter_by(email=user_data.email)
-    try:
-        result = await session.execute(statement)
-    except:
-        raise invalid_email_exception
-    user = result.scalar()
+    # # Поиск пользователя в базе данных по почте
+    # statement = select(User).filter_by(email=user_data.email)
+    # try:
+    #     result = await session.execute(statement)
+    # except:
+    #     raise invalid_email_exception
+    # user = result.scalar()
+    user = await select_instance(cls=User, session=session, email=user_data.email)
 
     if not user:
         raise invalid_email_exception
-    # Проверка совпадают ли первый и второй пароль
+    # Проверка на совпадение первого и второго пароля
     if user_data.password != user_data.password2:
         raise different_passwords_exception
     # Проверка email ключа для сброса пароля на стороне сервера и ключа, который и есть endpoint - /{key}

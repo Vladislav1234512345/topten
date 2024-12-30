@@ -13,7 +13,7 @@ from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from src.models import User
 from src.database import AsyncSessionDep
 from typing import Annotated, Any
-from src.container import jwt_settings
+from .config import jwt_settings
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/src/v1/jwt/login")
 

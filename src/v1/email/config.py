@@ -16,6 +16,9 @@ class EmailSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / 'env_files/.env.email',
         env_file_encoding='utf-8',
-        case_sensitive=False,
+        case_sensitive=True,
         extra='allow'
     )
+
+
+email_settings = EmailSettings()
