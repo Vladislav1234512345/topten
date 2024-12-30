@@ -27,6 +27,12 @@ touch certs/.env.db certs/.env.email certs/.env.tasks
 
 3) Filling files in env_files directory:
 
+* Filling a ".env" file:
+```text
+WEBAPP_HOST=<host>
+WEBAPP_PORT=<port>
+```
+
 * Filling a ".env.db" file:
 ```text
 POSTGRES_USER=<username>
