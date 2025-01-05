@@ -45,7 +45,7 @@ async def verification_code(
     # Генерация кода верификации
     email_code = generate_verification_code()
     # Вызов функции для отправки сообщения по почте с верификационным кодом
-    send_email_verification_code(receiver_email=user_data.email, code=email_code)
+    send_email_verification_code.delay(receiver_email=user_data.email, code=email_code)
     # Установка почты и верификационного кода в redis
     await redis_pool.set(verification_code_redis_key, email_code, ex=email_settings.expire_time)
 
@@ -76,7 +76,7 @@ async def reset_password(
     # Генерация ключа для сброса пароля
     email_reset_password_key = generate_password()
     # Вызов функции для отправки сообщения по почте с ключом сброса пароля
-    send_email_reset_password(receiver_email=user_data.email, key=email_reset_password_key)
+    send_email_reset_password.delay(receiver_email=user_data.email, key=email_reset_password_key)
     # Установка почты и ключа сброса пароля в redis
     await redis_pool.set(reset_password_redis_key, email_reset_password_key, ex=email_settings.expire_time)
 
