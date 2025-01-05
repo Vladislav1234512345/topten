@@ -1,10 +1,10 @@
 __all__ = ("router", )
 
 
-from .router import router as views_router
+from .router import router as jwt_router
 from fastapi import APIRouter
 
 
 router = APIRouter(prefix="/jwt", tags=["JWT"])
 
-router.include_router(router=views_router)
+router.include_router(router=jwt_router)
