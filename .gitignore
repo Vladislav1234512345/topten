@@ -6,5 +6,7 @@ __pycache__/
 media/
 env_files/
 
-*.pem
+certs/jwt-public.pem
+certs/jwt-private.pem
+
 .dockerignore
