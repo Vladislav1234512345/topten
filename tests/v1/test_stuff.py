@@ -35,7 +35,7 @@ def create_access_token_mock(user: UserMock) -> str:
     return access_token
 
 
-def test_is_user_stuff():
+def test_is_user_stuff() -> None:
     user = UserMock()
     access_token = create_access_token_mock(user=user)
     authorization_header = f"{jwt_settings.access_token_type} {access_token}"
