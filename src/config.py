@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from container import BASE_DIR
+from src.container import BASE_DIR
 
 
 class WebSettings(BaseSettings):

@@ -1,7 +1,6 @@
-from fastapi import Depends, HTTPException, Cookie
+from fastapi import Depends, HTTPException, Cookie, Header
 from sqlmodel import select
 from starlette import status
-from fastapi.security import OAuth2PasswordBearer
 
 from src.exceptions import (
     invalid_email_exception
@@ -22,14 +21,13 @@ from src.database import AsyncSessionDep
 from typing import Annotated, Any
 from .config import jwt_settings
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="/src/v1/jwt/login")
-
 
 def access_token_payload(
-        token: str = Depends(oauth2_schema)
+        authorization: Annotated[str | None, Header()]
 ) -> dict[str, Any]:
     try:
-        payload: dict[str, Any] = decode_jwt(token=token)
+        access_token = authorization.split(jwt_settings.access_token_type)[-1].strip()
+        payload: dict[str, Any] = decode_jwt(token=access_token)
     except ExpiredSignatureError:
         raise expired_token_exception
     except InvalidTokenError:
@@ -61,6 +59,26 @@ def validate_token_type(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail=f"Неверный тип токена {current_token_type!r}, ожидался {token_type!r}",
     )
+
+
+def validate_token_admin(payload: dict[str, Any]) -> bool:
+    user_is_admin = bool(payload.get("admin"))
+    if user_is_admin is None:
+        raise invalid_access_token_exception
+    elif user_is_admin:
+        return True
+
+    raise forbidden_admin_available_exception
+
+
+def validate_token_stuff(payload: dict[str, Any]) -> bool:
+    user_is_stuff = bool(payload.get("stuff"))
+    if user_is_stuff is None:
+        raise invalid_access_token_exception
+    elif user_is_stuff:
+        return True
+
+    raise forbidden_stuff_available_exception
 
 
 async def get_user_by_token_uid(
@@ -101,32 +119,30 @@ class UserGetterFromRefreshToken:
         return await get_user_by_token_uid(session=session, payload=payload)
 
 
-get_current_user_with_access_token = UserGetterFromAccessToken()
-get_current_user_with_refresh_token = UserGetterFromRefreshToken()
-
-
 class AdminUserGetterFromAccessToken:
     async def __call__(
             self,
-            user: User = Depends(get_current_user_with_access_token)
+            session: AsyncSessionDep,
+            payload: dict[str, Any] = Depends(access_token_payload)
     ) -> User:
-        if user.is_admin:
-            return user
-        else:
-            raise forbidden_admin_available_exception
+        validate_token_type(payload=payload, token_type=jwt_settings.jwt_access_token_type)
+        validate_token_admin(payload=payload)
+        return await get_user_by_token_uid(session=session, payload=payload)
 
 
 class StuffUserGetterFromAccessToken:
     async def __call__(
             self,
-            user: User = Depends(get_current_user_with_access_token)
+            session: AsyncSessionDep,
+            payload: dict[str, Any] = Depends(access_token_payload)
     ) -> User:
-        if user.is_stuff:
-            return user
-        else:
-            raise forbidden_stuff_available_exception
+        validate_token_type(payload=payload, token_type=jwt_settings.jwt_access_token_type)
+        validate_token_stuff(payload=payload)
+        return await get_user_by_token_uid(session=session, payload=payload)
 
 
+get_current_user_with_access_token = UserGetterFromAccessToken()
+get_current_user_with_refresh_token = UserGetterFromRefreshToken()
 get_current_admin_user_with_access_token = AdminUserGetterFromAccessToken()
 get_current_stuff_user_with_access_token = StuffUserGetterFromAccessToken()
 

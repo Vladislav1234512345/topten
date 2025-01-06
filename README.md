@@ -107,7 +107,7 @@ docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.0-man
 **Step-6:**
 ```shell
 # Run the celery
-celery -A tasks worker --loglevel=INFO --pool=solo
+celery -A src.worker worker --loglevel=INFO --pool=solo
 ```
 
 ***

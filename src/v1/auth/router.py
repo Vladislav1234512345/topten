@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 from src.utils import select_instance
 from src.v1.email.utils import get_redis_pool
 from src.v1.email.dependencies import validate_email_code
+from src.v1.jwt.dependencies import get_current_user_with_access_token
 from src.v1.jwt.utils import hash_password, set_tokens_in_response, validate_password
 from src.v1.email.config import email_settings
 from src.database import AsyncSessionDep
@@ -143,3 +144,10 @@ async def reset_password(
         content={"message": "Пароль был успешно обновлен."},
         status_code=status.HTTP_200_OK
     )
+
+
+@router.get('/protected')
+async def protected(
+        user: User = Depends(get_current_user_with_access_token)
+) -> User:
+    return user

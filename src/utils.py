@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 from sqlmodel import SQLModel, select
 
-from database import AsyncSessionDep
-from exceptions import invalid_email_exception
+from src.database import AsyncSessionDep
+from src.exceptions import invalid_email_exception
 
 
 async def insert_instance(instance: SQLModel, session: AsyncSessionDep, exception: HTTPException) -> SQLModel:

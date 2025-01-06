@@ -7,11 +7,10 @@ from .schemas import EmailPasswordSchema, EmailSchema
 from src.database import AsyncSessionDep
 from .utils import generate_verification_code, get_redis_pool, generate_password
 from .config import email_settings
-from sqlalchemy import select
 from src.models import User
 from src.exceptions import invalid_password_exception, invalid_email_exception, too_many_requests_exception
 from src.v1.jwt.utils import validate_password
-from .tasks import send_email_reset_password, send_email_verification_code
+from src.v1.email.tasks import send_email_reset_password, send_email_verification_code
 from src.utils import select_instance
 
 
@@ -36,7 +35,6 @@ async def verification_code(
     #     raise invalid_email_exception
     # user = result.scalar()
     user = await select_instance(cls=User, session=session, email=user_data.email)
-
 
     if user:
         # Проверка пароля пользователя

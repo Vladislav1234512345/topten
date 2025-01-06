@@ -1,5 +1,6 @@
-from fastapi import HTTPException
 from starlette import status
+from starlette.exceptions import HTTPException
+
 
 invalid_password_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
