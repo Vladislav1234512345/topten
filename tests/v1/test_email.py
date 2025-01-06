@@ -1,6 +1,5 @@
 from fastapi.testclient import TestClient
 from src.v1.email import router
-from src.container import logger
 import json
 
 
