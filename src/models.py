@@ -1,17 +1,25 @@
-from sqlmodel import SQLModel, Field
-from pydantic import EmailStr
+from sqlalchemy.orm import mapped_column, Mapped, validates
+from email_validator import validate_email, EmailNotValidError
+
+from src.database import intpk, str_256, created_at, updated_at, Base
+from src.exceptions import invalid_email_exception
 
 
-class Base(SQLModel):
-    id: int = Field(title="ID", primary_key=True)
-
-
-class User(Base, table=True):
+class UserModel(Base):
     __tablename__ = "users"
 
-    email: EmailStr = Field(title="Email", unique=True, nullable=False)
-    password: bytes = Field(title="Password", nullable=False, min_length=8)
-    first_name: str = Field(title="First name", nullable=False, min_length=1)
-    is_admin: bool = Field(title="Admin", default=False, nullable=True)
-    is_stuff: bool = Field(title="Stuff", default=False, nullable=True)
-    is_active: bool = Field(title="Active", default=True, nullable=True)
+    id: Mapped[intpk]
+    email: Mapped[str] = mapped_column(nullable=False, unique=True)
+    password: Mapped[bytes] = mapped_column(nullable=False)
+    first_name: Mapped[str_256]
+    is_admin: Mapped[bool] = mapped_column(default=False, nullable=True)
+    is_stuff: Mapped[bool] = mapped_column(default=False, nullable=True)
+    is_active: Mapped[bool] = mapped_column(default=True, nullable=True)
+    created_at: Mapped[created_at]
+    updated_at: Mapped[updated_at]
+
+    def validate_email_column(self, key, address):
+        try:
+            validate_email(address)
+        except EmailNotValidError:
+            raise invalid_email_exception

@@ -3,8 +3,9 @@
 .pytest_cache/
 .venv/
 __pycache__/
+certs/
 media/
 env_files/
 
-*.pem
-.dockerignore
+dump.rdb
+erl_crash.dump
