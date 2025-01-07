@@ -20,10 +20,10 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl="/src/v1/jwt/login")
 
 
 def get_current_access_token_payload(
-        token: Annotated[str | None, Header()] = None
+        authorization: Annotated[str | None, Header()]
 ) -> dict[str, Any]:
     try:
-        access_token = token.split(jwt_settings.access_token_type)[-1].strip()
+        access_token = authorization.split(jwt_settings.access_token_type)[-1].strip()
         payload: dict[str, Any] = decode_jwt(token=access_token)
     except ExpiredSignatureError:
         raise expired_token_exception
@@ -32,7 +32,7 @@ def get_current_access_token_payload(
     return payload
 
 
-def get_current_refresh_token_payload(refresh_token: Annotated[str | None, Cookie()] = None) -> dict[str, Any]:
+def get_current_refresh_token_payload(refresh_token: Annotated[str | None, Cookie()]) -> dict[str, Any]:
     if refresh_token is None:
         raise refresh_token_not_found_exception
     try:

@@ -6,6 +6,9 @@ from sqlalchemy.orm import DeclarativeBase, mapped_column
 from sqlalchemy import text, String
 import datetime
 
+from src.config import database_settings
+
+
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
 str_256 = Annotated[str, 256]
@@ -28,10 +31,6 @@ class Base(DeclarativeBase):
                 columns.append(f"{column}={getattr(self, column)}")
 
         return f"{self.__class__.__name__}({', '.join(columns)})"
-
-
-from config import database_settings
-
 
 engine = create_async_engine(
     url=database_settings.POSTGRES_URL_asyncpg,

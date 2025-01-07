@@ -31,7 +31,7 @@ def create_access_token_mock(user: UserSchema) -> str:
 
 def test_is_user_admin():
     now = datetime.datetime.now()
-    access_token = create_access_token_mock(user=UserSchema(id=1, email="antonkutorov@gmail.com", first_name="Vladislav", is_admin=False, is_stuff=True, is_active=True, created_at=now, updated_at=now))
+    access_token = create_access_token_mock(user=UserSchema(id=1, email="antonkutorov@gmail.com", first_name="Vladislav", is_admin=True, is_stuff=True, is_active=True, created_at=now, updated_at=now))
     authorization_header = f"{jwt_settings.access_token_type} {access_token}"
     logger.info(f"authorization_header = {authorization_header}")
     client.headers['Authorization'] = authorization_header

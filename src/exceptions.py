@@ -11,7 +11,7 @@ unauthorized_exception = HTTPException(
 )
 user_not_found_exception = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
-    detail="Пользователь с такой почтой не зарегистрирован!"
+    detail="Пользователь не найден!"
 )
 invalid_email_code_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,

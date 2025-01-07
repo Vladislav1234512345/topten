@@ -10,8 +10,8 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 import uvicorn
 from v1 import router as v1_router
-from database import create_db_and_tables
-from config import web_settings
+from src.database import create_db_and_tables
+from src.config import web_settings
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
