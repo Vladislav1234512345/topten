@@ -5,19 +5,13 @@ from src.v1.admin import router
 from src.v1.jwt.config import jwt_settings
 from src.v1.jwt.utils import encode_jwt
 from src.container import logger
+import datetime
+from src.schemas import UserSchema
 
 client = TestClient(router)
 
 
-class UserMock(BaseModel):
-    id: int = 1
-    email: str = "antonkutorov@gmail.com"
-    first_name: str = "Vladislav"
-    is_admin: bool = True
-    is_stuff: bool = False
-
-
-def create_access_token_mock(user: UserMock) -> str:
+def create_access_token_mock(user: UserSchema) -> str:
     jwt_payload_access_token = {
         "type": jwt_settings.jwt_access_token_type,
         "uid": user.id,
@@ -36,8 +30,8 @@ def create_access_token_mock(user: UserMock) -> str:
 
 
 def test_is_user_admin():
-    user = UserMock()
-    access_token = create_access_token_mock(user=user)
+    now = datetime.datetime.now()
+    access_token = create_access_token_mock(user=UserSchema(id=1, email="antonkutorov@gmail.com", first_name="Vladislav", is_admin=True, is_stuff=True, is_active=True, created_at=now, updated_at=now))
     authorization_header = f"{jwt_settings.access_token_type} {access_token}"
     logger.info(f"authorization_header = {authorization_header}")
     client.headers['Authorization'] = authorization_header

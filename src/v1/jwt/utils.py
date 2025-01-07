@@ -2,7 +2,7 @@ import bcrypt
 import jwt
 from src.v1.jwt.config import jwt_settings, cookies_settings
 from datetime import timedelta, datetime, UTC
-from src.models import User
+from src.schemas import UserSchema
 from starlette.responses import JSONResponse
 from typing import Any
 
@@ -31,7 +31,7 @@ def decode_jwt(
     return decoded_jwt
 
 
-def create_access_token(user: User) -> str:
+def create_access_token(user: UserSchema) -> str:
     jwt_payload_access_token = {
         "type": jwt_settings.jwt_access_token_type,
         "uid": user.id,
@@ -49,12 +49,14 @@ def create_access_token(user: User) -> str:
     return access_token
 
 
-def create_refresh_token(user: User) -> str:
+def create_refresh_token(user: UserSchema) -> str:
     jwt_payload_refresh_token = {
         "type": jwt_settings.jwt_refresh_token_type,
         "uid": user.id,
         "sub": user.email,
         "name": user.first_name,
+        "admin": user.is_admin,
+        "stuff": user.is_stuff
     }
 
     refresh_token = encode_jwt(
@@ -65,7 +67,7 @@ def create_refresh_token(user: User) -> str:
     return refresh_token
 
 
-def set_tokens_in_response(response: JSONResponse, user: User) -> JSONResponse:
+def set_tokens_in_response(response: JSONResponse, user: UserSchema) -> JSONResponse:
     access_token: str = create_access_token(user=user)
     refresh_token: str = create_refresh_token(user=user)
 

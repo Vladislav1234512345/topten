@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
-from src.models import User
+from src.schemas import UserSchema
 from src.v1.jwt.dependencies import get_current_stuff_user_with_access_token
 
 
 router = APIRouter()
 
 
-@router.get('/protected')
+@router.get('/protected', response_model=UserSchema)
 async def protected(
-        user: User = Depends(get_current_stuff_user_with_access_token),
-) -> User:
+        user: UserSchema = Depends(get_current_stuff_user_with_access_token),
+) -> UserSchema:
     return user

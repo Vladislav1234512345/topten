@@ -26,7 +26,7 @@ class EmailPasswordVerificationCodeSchema(EmailPasswordSchema, VerificationCodeS
 
 
 class EmailPasswordFirstNameVerificationCodeSchema(EmailPasswordVerificationCodeSchema):
-    first_name: str = Field(min_length=1)
+    first_name: str
 
 
 

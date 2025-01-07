@@ -9,7 +9,7 @@ class EmailSettings(BaseSettings):
     EMAIL_NAME: str
     EMAIL_APP_PASSWORD: str
 
-    expire_time: timedelta = timedelta(minutes=5)
+    expire_time: timedelta = timedelta(minutes=2)
     verification_code_name: str = "code"
     reset_password_name: str = "password"
 

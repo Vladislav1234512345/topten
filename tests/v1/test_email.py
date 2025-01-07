@@ -24,16 +24,18 @@ def test_verification_code(verification_code_body: dict[str, str], is_active: bo
 
 
 def test_send_emails():
+    email = "antonkutorov@gmail.com"
+    password = 'qwerty1234'
     test_reset_password(
         reset_password_body={
-            "email": "antonkutorov@gmail.com"
+            "email": email
         },
         is_active=False
     )
     test_verification_code(
         verification_code_body={
-            "email": "antonkutorov@gmail.com",
-            "password": "qwerty1234",
+            "email": email,
+            "password": password,
         },
         is_active=True
     )
