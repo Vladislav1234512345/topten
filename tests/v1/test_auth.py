@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-from pydantic import BaseModel
 
 from src.database import async_session_factory
 from src.models import UserModel
@@ -7,8 +6,11 @@ from src.schemas import UserSchema
 from src.v1.auth import router
 from src.utils import create_user, select_user
 from src.v1.auth.exceptions import current_user_yet_exists_exception
-from src.v1.email.schemas import EmailPasswordFirstNameVerificationCodeSchema, EmailPasswordVerificationCodeSchema, \
-    EmailTwoPasswordsSchema
+from src.v1.email.schemas import (
+    EmailPasswordFirstNameVerificationCodeSchema,
+    EmailPasswordVerificationCodeSchema,
+    EmailTwoPasswordsSchema,
+)
 from src.v1.jwt.config import jwt_settings
 from src.v1.jwt.utils import encode_jwt, hash_password
 from src.container import logger
@@ -42,12 +44,11 @@ async def create_user_mock(email: str, password: str, first_name: str) -> UserSc
     async with async_session_factory() as session:
         user = await create_user(
             user=UserModel(
-                email=email,
-                password=hash_password(password),
-                first_name=first_name
+                email=email, password=hash_password(password), first_name=first_name
             ),
             session=session,
-            exception=current_user_yet_exists_exception)
+            exception=current_user_yet_exists_exception,
+        )
         logger.info(f"Пользователь с почтой {email} успешно создан.")
         return user
 
@@ -71,14 +72,16 @@ async def test_refresh(user: UserSchema, is_active: bool = False) -> None:
     access_token = create_access_token_mock(user=user)
     authorization_header = f"{jwt_settings.access_token_type} {access_token}"
     logger.info(f"authorization_header = {authorization_header}")
-    client.headers['Authorization'] = authorization_header
-    response = client.get('/auth/protected')
+    client.headers["Authorization"] = authorization_header
+    response = client.get("/auth/protected")
     assert response.status_code == 200
     logger.info(f"{response.json()=}")
     assert response.json()
 
 
-async def test_signup(user: EmailPasswordFirstNameVerificationCodeSchema, is_active: bool = False) -> None:
+async def test_signup(
+    user: EmailPasswordFirstNameVerificationCodeSchema, is_active: bool = False
+) -> None:
     if not is_active:
         return None
 
@@ -88,7 +91,9 @@ async def test_signup(user: EmailPasswordFirstNameVerificationCodeSchema, is_act
     assert response.json() == {"message": "Регистрация прошла успешно."}
 
 
-async def test_login(user: EmailPasswordVerificationCodeSchema, is_active: bool = False) -> None:
+async def test_login(
+    user: EmailPasswordVerificationCodeSchema, is_active: bool = False
+) -> None:
     if not is_active:
         return None
 
@@ -98,7 +103,9 @@ async def test_login(user: EmailPasswordVerificationCodeSchema, is_active: bool 
     assert response.json() == {"message": "Авторизация прошла успешно."}
 
 
-async def test_reset_password(user: EmailTwoPasswordsSchema, key: str, is_active: bool = False) -> None:
+async def test_reset_password(
+    user: EmailTwoPasswordsSchema, key: str, is_active: bool = False
+) -> None:
     if not is_active:
         return None
 
@@ -114,10 +121,10 @@ async def test_is_user_auth() -> None:
     email = "antonkutorov@gmail.com"
     new_password_1 = "qwerty1234"
     new_password_2 = "qwerty1232"
-    signup_password = "qwerty1234"
+    signup_password = "hello1234"
     first_name = "Vladislav"
 
-    email_code = "909691"
+    email_code = "746789"
     key = ""
 
     if not email_code:
@@ -125,8 +132,38 @@ async def test_is_user_auth() -> None:
     if not key:
         key = "KEY_CODE"
 
-    await test_refresh(user=UserSchema(id=1, email=email, first_name=first_name, is_active=False, is_admin=False, is_stuff=False, created_at=now, updated_at=now), is_active=False)
-    await test_signup(user=EmailPasswordFirstNameVerificationCodeSchema(email=email, first_name=first_name, password=signup_password, email_code=email_code), is_active=False)
-    await test_login(user=EmailPasswordVerificationCodeSchema(email=email, password=signup_password, email_code=email_code), is_active=False)
-    await test_reset_password(user=EmailTwoPasswordsSchema(email=email, password=new_password_1, password2=new_password_1), key=key, is_active=False)
-
+    await test_refresh(
+        user=UserSchema(
+            id=1,
+            email=email,
+            first_name=first_name,
+            is_active=False,
+            is_admin=False,
+            is_stuff=False,
+            created_at=now,
+            updated_at=now,
+        ),
+        is_active=False,
+    )
+    await test_signup(
+        user=EmailPasswordFirstNameVerificationCodeSchema(
+            email=email,
+            first_name=first_name,
+            password=signup_password,
+            email_code=email_code,
+        ),
+        is_active=False,
+    )
+    await test_login(
+        user=EmailPasswordVerificationCodeSchema(
+            email=email, password=signup_password, email_code=email_code
+        ),
+        is_active=True,
+    )
+    await test_reset_password(
+        user=EmailTwoPasswordsSchema(
+            email=email, password=new_password_1, password2=new_password_1
+        ),
+        key=key,
+        is_active=False,
+    )

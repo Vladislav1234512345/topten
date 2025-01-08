@@ -1,4 +1,4 @@
-__all__ = ("router", )
+__all__ = ("router",)
 
 
 from .jwt import router as jwt_router

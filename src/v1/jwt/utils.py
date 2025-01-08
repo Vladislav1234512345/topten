@@ -25,9 +25,11 @@ def encode_jwt(
 def decode_jwt(
     token: str | bytes,
     public_key: str = jwt_settings.public_key_path.read_text(),
-    algorithm: str = jwt_settings.algorithm
+    algorithm: str = jwt_settings.algorithm,
 ) -> dict[str, Any]:
-    decoded_jwt: dict[str, Any] = jwt.decode(jwt=token, key=public_key, algorithms=[algorithm])
+    decoded_jwt: dict[str, Any] = jwt.decode(
+        jwt=token, key=public_key, algorithms=[algorithm]
+    )
     return decoded_jwt
 
 
@@ -56,7 +58,7 @@ def create_refresh_token(user: UserSchema) -> str:
         "sub": user.email,
         "name": user.first_name,
         "admin": user.is_admin,
-        "stuff": user.is_stuff
+        "stuff": user.is_stuff,
     }
 
     refresh_token = encode_jwt(
@@ -71,7 +73,9 @@ def set_tokens_in_response(response: JSONResponse, user: UserSchema) -> JSONResp
     access_token: str = create_access_token(user=user)
     refresh_token: str = create_refresh_token(user=user)
 
-    response.headers["Authorization"] = f"{jwt_settings.access_token_type} {access_token}"
+    response.headers["Authorization"] = (
+        f"{jwt_settings.access_token_type} {access_token}"
+    )
 
     response.set_cookie(
         key=cookies_settings.refresh_token_name,

@@ -17,7 +17,6 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await create_db_and_tables()
@@ -29,10 +28,16 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(router=v1_router)
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_headers=["*"], allow_methods=["*"],allow_credentials=True)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_headers=["*"],
+    allow_methods=["*"],
+    allow_credentials=True,
+)
 app.add_middleware(HTTPSRedirectMiddleware)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run(app=app, host=web_settings.WEBAPP_HOST, port=web_settings.WEBAPP_PORT)

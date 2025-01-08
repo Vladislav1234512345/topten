@@ -16,15 +16,14 @@ def generate_password(
     return password
 
 
-
 def generate_verification_code(symbols: LiteralString = digits, length: int = 6) -> str:
     return generate_password(population=symbols, length=length)
 
 
 async def get_redis_pool() -> AsyncIterator[Redis]:
-    redis: Redis = await from_url(
+    redis = await from_url(  # type: ignore
         f"redis://{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
-        decode_responses=True
+        decode_responses=True,
     )
     try:
         yield redis

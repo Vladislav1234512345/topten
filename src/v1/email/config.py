@@ -14,11 +14,11 @@ class EmailSettings(BaseSettings):
     reset_password_name: str = "password"
 
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / 'env_files/.env.email',
-        env_file_encoding='utf-8',
+        env_file=BASE_DIR / "env_files/.env.email",
+        env_file_encoding="utf-8",
         case_sensitive=True,
-        extra='allow'
+        extra="allow",
     )
 
 
-email_settings = EmailSettings()
+email_settings = EmailSettings()  # type: ignore

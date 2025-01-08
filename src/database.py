@@ -9,22 +9,26 @@ import datetime
 from src.config import database_settings
 
 
-
 intpk = Annotated[int, mapped_column(primary_key=True)]
 str_256 = Annotated[str, 256]
-created_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('UTC', now())"))]
-updated_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('UTC', now())"), onupdate=datetime.datetime.utcnow)]
+created_at = Annotated[
+    datetime.datetime, mapped_column(server_default=text("TIMEZONE('UTC', now())"))
+]
+updated_at = Annotated[
+    datetime.datetime,
+    mapped_column(
+        server_default=text("TIMEZONE('UTC', now())"), onupdate=datetime.datetime.utcnow
+    ),
+]
 
 
 class Base(DeclarativeBase):
-    type_annotation_map = {
-        str_256: String(length=256)
-    }
+    type_annotation_map = {str_256: String(length=256)}
 
     columns_count = 4
-    extra_column = tuple()
+    extra_column = ()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         columns = []
         for id, column in enumerate(self.__table__.columns.keys()):
             if id < self.columns_count or column in self.extra_column:
@@ -32,13 +36,13 @@ class Base(DeclarativeBase):
 
         return f"{self.__class__.__name__}({', '.join(columns)})"
 
-engine = create_async_engine(
-    url=database_settings.POSTGRES_URL_asyncpg,
-    echo=False
+
+engine = create_async_engine(url=database_settings.POSTGRES_URL_asyncpg, echo=False)
+
+
+async_session_factory = async_sessionmaker(
+    bind=engine, class_=AsyncSession, expire_on_commit=False
 )
-
-
-async_session_factory = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
 
 async def create_db_and_tables() -> None:

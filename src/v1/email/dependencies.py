@@ -2,9 +2,7 @@ from fastapi import Form
 from src.exceptions import invalid_email_code_exception
 
 
-def validate_email_code(
-        email_code: str = Form()
-) -> str:
+def validate_email_code(email_code: str = Form()) -> str:
 
     try:
         int(email_code)

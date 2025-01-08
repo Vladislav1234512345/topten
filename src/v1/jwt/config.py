@@ -10,7 +10,7 @@ from src.container import BASE_DIR
 class JWTSettings(BaseSettings):
     private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
     public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
-    algorithm: str = 'RS256'
+    algorithm: str = "RS256"
     access_token_expire_minutes: timedelta = timedelta(minutes=15)
     refresh_token_expire_days: timedelta = timedelta(days=7)
     access_token_type: str = "Bearer"
@@ -23,7 +23,7 @@ class JWTSettings(BaseSettings):
 class CookiesSettings(BaseSettings):
     refresh_token_name: str = "refresh_token"
     httponly: bool = True
-    samesite: Literal['lax', 'strict', 'none'] | None = 'lax'
+    samesite: Literal["lax", "strict", "none"] | None = "lax"
     secure: bool = False
 
     model_config = SettingsConfigDict(case_sensitive=True)

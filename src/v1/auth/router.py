@@ -16,25 +16,32 @@ from src.models import UserModel
 from src.v1.email.schemas import (
     EmailPasswordFirstNameVerificationCodeSchema,
     EmailPasswordVerificationCodeSchema,
-    EmailTwoPasswordsSchema
+    EmailTwoPasswordsSchema,
 )
 from src.exceptions import (
     invalid_email_code_exception,
     user_not_found_exception,
-    invalid_password_exception, reset_user_password_exception
+    invalid_password_exception,
+    reset_user_password_exception,
 )
-from src.v1.auth.exceptions import invalid_reset_password_key_exception, different_passwords_exception, current_user_yet_exists_exception
+from src.v1.auth.exceptions import (
+    invalid_reset_password_key_exception,
+    different_passwords_exception,
+    current_user_yet_exists_exception,
+)
 
 router = APIRouter()
 
 
-@router.post('/signup')
+@router.post("/signup")
 async def signup(
-        session: AsyncSessionDep,
-        user_data: EmailPasswordFirstNameVerificationCodeSchema,
-        redis_pool: Redis = Depends(get_redis_pool),
+    session: AsyncSessionDep,
+    user_data: EmailPasswordFirstNameVerificationCodeSchema,
+    redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
-    verification_code_redis_key = f"{email_settings.verification_code_name}:{user_data.email}"
+    verification_code_redis_key = (
+        f"{email_settings.verification_code_name}:{user_data.email}"
+    )
     # Валидация email кода
     email_code = validate_email_code(email_code=user_data.email_code)
     # Получение email кода из redis
@@ -47,36 +54,40 @@ async def signup(
         user=UserModel(
             email=user_data.email,
             password=hash_password(password=user_data.password),
-            first_name=user_data.first_name
+            first_name=user_data.first_name,
         ),
         session=session,
-        exception=current_user_yet_exists_exception
+        exception=current_user_yet_exists_exception,
     )
     # Удаление email кода из redis
     await redis_pool.delete(verification_code_redis_key)
     # Статус код и контент ответа
     response: JSONResponse = JSONResponse(
         content={"message": "Регистрация прошла успешно."},
-        status_code=status.HTTP_201_CREATED
+        status_code=status.HTTP_201_CREATED,
     )
     # Настройка токенов и ответа сервера
     return set_tokens_in_response(response=response, user=user)
 
 
-@router.post('/login')
+@router.post("/login")
 async def login(
     session: AsyncSessionDep,
     user_data: EmailPasswordVerificationCodeSchema,
     redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
-    verification_code_redis_key = f"{email_settings.verification_code_name}:{user_data.email}"
+    verification_code_redis_key = (
+        f"{email_settings.verification_code_name}:{user_data.email}"
+    )
     # Поиск пользователя в базе данных по почте
     user = await select_user(session=session, get_password=True, email=user_data.email)
 
     if not user:
         raise user_not_found_exception
     # Проверка пароля пользователя из базы даннх и пароля, который отправил сам пользователь
-    if not validate_password(password=user_data.password, hashed_password=user.password):
+    if not validate_password(
+        password=user_data.password, hashed_password=user.password  # type: ignore
+    ):
         raise invalid_password_exception
     # Валидация email кода
     email_code = validate_email_code(email_code=user_data.email_code)
@@ -90,18 +101,18 @@ async def login(
     # Статус код и контент ответа
     response: JSONResponse = JSONResponse(
         content={"message": "Авторизация прошла успешно."},
-        status_code=status.HTTP_200_OK
+        status_code=status.HTTP_200_OK,
     )
     # Настройка токенов и ответа сервера
     return set_tokens_in_response(response=response, user=user)
 
 
-@router.post('/reset-password/{key}')
+@router.post("/reset-password/{key}")
 async def reset_password(
-        key: str,
-        session: AsyncSessionDep,
-        user_data: EmailTwoPasswordsSchema,
-        redis_pool: Redis = Depends(get_redis_pool)
+    key: str,
+    session: AsyncSessionDep,
+    user_data: EmailTwoPasswordsSchema,
+    redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
     reset_password_redis_key = f"{email_settings.reset_password_name}:{user_data.email}"
     # Получение email кода из redis
@@ -113,18 +124,23 @@ async def reset_password(
     if key != stored_reset_password_key:
         raise invalid_reset_password_key_exception
 
-    await update_user_with_email(session=session, user_email=user_data.email, show_user=False, password=hash_password(password=user_data.password))
+    await update_user_with_email(
+        session=session,
+        user_email=user_data.email,
+        show_user=False,
+        password=hash_password(password=user_data.password),
+    )
 
     await redis_pool.delete(reset_password_redis_key)
 
     return JSONResponse(
         content={"message": "Пароль был успешно обновлен."},
-        status_code=status.HTTP_200_OK
+        status_code=status.HTTP_200_OK,
     )
 
 
-@router.get('/protected', response_model=UserSchema)
+@router.get("/protected", response_model=UserSchema)
 async def protected(
-        user: UserSchema = Depends(get_current_user_with_access_token)
+    user: UserSchema = Depends(get_current_user_with_access_token),
 ) -> UserSchema:
     return user

@@ -1,8 +1,6 @@
-from sqlalchemy.orm import mapped_column, Mapped, validates
-from email_validator import validate_email, EmailNotValidError
+from sqlalchemy.orm import mapped_column, Mapped
 
 from src.database import intpk, str_256, created_at, updated_at, Base
-from src.exceptions import invalid_email_exception
 
 
 class UserModel(Base):
@@ -17,9 +15,3 @@ class UserModel(Base):
     is_active: Mapped[bool] = mapped_column(default=True, nullable=True)
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
-
-    def validate_email_column(self, key, address):
-        try:
-            validate_email(address)
-        except EmailNotValidError:
-            raise invalid_email_exception

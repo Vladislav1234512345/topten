@@ -7,7 +7,7 @@ class WebSettings(BaseSettings):
     WEBAPP_PORT: int
 
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / 'env_files/.env',
+        env_file=BASE_DIR / "env_files/.env",
         env_file_encoding="utf-8",
         case_sensitive=True,
     )
@@ -21,7 +21,7 @@ class DatabaseSettings(BaseSettings):
     POSTGRES_DB: str
 
     @property
-    def POSTGRES_URL_psycopg(self):
+    def POSTGRES_URL_psycopg(self) -> str:
         return (
             f"postgresql+psycopg://"
             f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
@@ -30,7 +30,7 @@ class DatabaseSettings(BaseSettings):
         )
 
     @property
-    def POSTGRES_URL_asyncpg(self):
+    def POSTGRES_URL_asyncpg(self) -> str:
         return (
             f"postgresql+asyncpg://"
             f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
@@ -39,7 +39,7 @@ class DatabaseSettings(BaseSettings):
         )
 
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / 'env_files/.env.db',
+        env_file=BASE_DIR / "env_files/.env.db",
         env_file_encoding="utf-8",
         case_sensitive=True,
     )
@@ -52,12 +52,12 @@ class TasksSettings(BaseSettings):
     RABBITMQ_PORT: int
 
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / 'env_files/.env.tasks',
-        env_file_encoding='utf-8',
-        case_sensitive=True
+        env_file=BASE_DIR / "env_files/.env.tasks",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
     )
 
 
-web_settings = WebSettings()
-database_settings = DatabaseSettings()
-tasks_settings = TasksSettings()
+web_settings = WebSettings()  # type: ignore
+database_settings = DatabaseSettings()  # type: ignore
+tasks_settings = TasksSettings()  # type: ignore

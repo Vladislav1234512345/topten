@@ -9,7 +9,9 @@ from src.exceptions import user_not_found_exception, reset_user_password_excepti
 from src.container import logger
 
 
-async def create_user(user: UserModel, session: AsyncSessionDep, exception: HTTPException) -> UserSchema:
+async def create_user(
+    user: UserModel, session: AsyncSessionDep, exception: HTTPException
+) -> UserSchema:
     logger.info(f"{user.email=}")
     session.add(user)
     try:
@@ -19,11 +21,10 @@ async def create_user(user: UserModel, session: AsyncSessionDep, exception: HTTP
     await session.refresh(user)
     logger.info(f"{user.email=}")
 
-
     return UserSchema.model_validate(user, from_attributes=True)
 
 
-async def select_user_instance(session: AsyncSessionDep, **filters) -> UserModel:
+async def select_user_instance(session: AsyncSessionDep, **filters) -> UserModel | None:  # type: ignore
     statement = select(UserModel).filter_by(**filters)
     try:
         result = await session.execute(statement)
@@ -34,7 +35,9 @@ async def select_user_instance(session: AsyncSessionDep, **filters) -> UserModel
     return user
 
 
-async def select_user(session: AsyncSessionDep, get_password: bool = False, **filters) -> UserPasswordSchema | UserSchema | None:
+async def select_user(  # type: ignore
+    session: AsyncSessionDep, get_password: bool = False, **filters
+) -> UserPasswordSchema | UserSchema | None:
     user = await select_user_instance(session=session, **filters)
 
     if not user:
@@ -46,9 +49,12 @@ async def select_user(session: AsyncSessionDep, get_password: bool = False, **fi
         return UserSchema.model_validate(user, from_attributes=True)
 
 
-async def update_user_with_email(session: AsyncSessionDep, user_email: EmailStr, show_user: bool=False, **attrs) -> UserSchema | None:
+async def update_user_with_email(  # type: ignore
+    session: AsyncSessionDep, user_email: EmailStr, show_user: bool = False, **attrs
+) -> UserSchema | None:
     user = await select_user_instance(session=session, email=user_email)
     from src.container import logger
+
     logger.info(f"{user=}")
     if not user:
         raise user_not_found_exception
@@ -68,12 +74,6 @@ async def update_user_with_email(session: AsyncSessionDep, user_email: EmailStr,
     if not show_user:
         return None
 
-    session.refresh(user)
+    await session.refresh(user)
 
     return UserPasswordSchema.model_validate(user, from_attributes=True)
-
-
-
-
-
-

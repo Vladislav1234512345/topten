@@ -27,6 +27,3 @@ class EmailPasswordVerificationCodeSchema(EmailPasswordSchema, VerificationCodeS
 
 class EmailPasswordFirstNameVerificationCodeSchema(EmailPasswordVerificationCodeSchema):
     first_name: str
-
-
-

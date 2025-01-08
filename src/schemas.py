@@ -22,4 +22,3 @@ class UserPasswordSchema(UserSchema):
     password: bytes
 
     model_config = ConfigDict(from_attributes=True)
-
