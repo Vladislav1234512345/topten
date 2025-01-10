@@ -13,8 +13,6 @@ from v1 import router as v1_router
 from src.database import create_db_and_tables
 from src.config import web_settings
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 
 @asynccontextmanager
@@ -35,8 +33,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_credentials=True,
 )
-app.add_middleware(HTTPSRedirectMiddleware)
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
 
 if __name__ == "__main__":

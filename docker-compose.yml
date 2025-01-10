@@ -24,13 +24,14 @@ services:
       - "15672:15672"
 
   backend:
-      image: vladislav1234512345/topten:1.0.1
+      image: vladislav1234512345/topten:1.0.2
       command: >
-        sh -c "celery -A src/tasks worker --loglevel=INFO --pool=solo & python src/main.py"
+        sh -c "celery -A src.worker worker --loglevel=INFO --pool=solo & python3 src/main.py"
       volumes:
         - ./env_files:/usr/src/app/env_files
-        - ./env_files:/usr/src/app/env_files
+        - ./certs:/usr/src/app/certs
       env_file:
+        - env_files/.env
         - env_files/.env.db
         - env_files/.env.email
         - env_files/.env.tasks

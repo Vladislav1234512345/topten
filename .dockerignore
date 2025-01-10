@@ -1,0 +1,11 @@
+.idea/
+.mypy_cache/
+.pytest_cache/
+.venv/
+__pycache__/
+certs/
+media/
+env_files/
+
+dump.rdb
+erl_crash.dump
