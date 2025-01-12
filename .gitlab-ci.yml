@@ -1,0 +1,29 @@
+stages:
+  - setup
+  - test
+
+setup_job:
+  stage: setup
+  script:
+    - apt-get update
+    - apt-get install -y openssl
+    - mkdir -p certs env_files
+    - touch env_files/.env env_files/.env.db env_files/.env.email env_files/.env.tasks
+    - openssl genrsa -out certs/jwt-private.pem 2048
+    - openssl rsa -in certs/jwt-private.pem -outform PEM -pubout -out certs/jwt-public.pem
+    - cat "$ENV_FILE" > env_files/.env
+    - cat "$ENV_FILE_DB" > env_files/.env.db
+    - cat "$ENV_FILE_EMAIL" > env_files/.env.email
+    - cat "$ENV_FILE_TASKS" > env_files/.env.tasks
+  artifacts:
+    paths:
+      - certs/
+      - env_files/
+
+test_job:
+  stage: test
+  image: docker:latest
+  services:
+    - docker:20.10.7-dind
+  script:
+    - docker compose up --build -d
