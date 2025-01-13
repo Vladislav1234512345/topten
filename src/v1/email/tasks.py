@@ -54,7 +54,6 @@ def send_email(
         with smtplib.SMTP_SSL(
             host=email_settings.SMTP_HOST, port=email_settings.SMTP_PORT
         ) as server:
-            server.starttls()  # Secure the connection
             server.login(
                 user=email_settings.EMAIL_NAME,
                 password=email_settings.EMAIL_APP_PASSWORD,
