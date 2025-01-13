@@ -51,19 +51,18 @@ def send_email(
         )
 
     try:
-        server = smtplib.SMTP(host="smtp.gmail.com", port=587)
-        server.starttls()  # Secure the connection
-        server.login(
-            user=email_settings.EMAIL_NAME, password=email_settings.EMAIL_APP_PASSWORD
-        )  # Log in to your email account
-
-        # Send the email
-        text = msg.as_string()  # Convert the message to a string
-        server.sendmail(email_settings.EMAIL_NAME, receiver_email, text)
-        logger.info(f"Успешно было отправлено сообщение на почту {receiver_email}")
+        with smtplib.SMTP_SSL(
+            host=email_settings.SMTP_HOST, port=email_settings.SMTP_PORT
+        ) as server:
+            server.starttls()  # Secure the connection
+            server.login(
+                user=email_settings.EMAIL_NAME,
+                password=email_settings.EMAIL_APP_PASSWORD,
+            )  # Log in to your email account
+            text = msg.as_string()
+            server.sendmail(email_settings.EMAIL_NAME, receiver_email, text)
+            logger.info(f"Успешно было отправлено сообщение на почту {receiver_email}")
     except Exception as e:
         logger.error(
             f"Произошла ошибка отправки сообщения на почту {receiver_email}:\n{e}"
         )
-    finally:
-        server.quit()

@@ -8,6 +8,8 @@ from src.container import BASE_DIR
 class EmailSettings(BaseSettings):
     EMAIL_NAME: str
     EMAIL_APP_PASSWORD: str
+    SMTP_HOST: str
+    SMTP_PORT: int
 
     expire_time: timedelta = timedelta(minutes=2)
     verification_code_name: str = "code"
