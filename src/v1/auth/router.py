@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
 from redis.asyncio import Redis
-from starlette import status
 from starlette.responses import JSONResponse
 
 from src.utils import select_user, update_user_with_email
@@ -21,13 +20,20 @@ from src.exceptions import (
     invalid_email_code_exception,
     user_not_found_exception,
     invalid_password_exception,
-    reset_user_password_exception,
 )
 from src.v1.auth.exceptions import (
     invalid_reset_password_key_exception,
     different_passwords_exception,
     current_user_yet_exists_exception,
 )
+from .responses import reset_password_response, signup_response, login_response
+import logging
+from src.container import configure_logging
+from src.config import logging_settings
+
+logger = logging.getLogger(__name__)
+configure_logging(level=logging_settings.logging_level)
+
 
 router = APIRouter()
 
@@ -55,11 +61,9 @@ async def signup(
         exception=current_user_yet_exists_exception,
     )
     await redis_pool.delete(verification_code_redis_key)
-    response: JSONResponse = JSONResponse(
-        content={"message": "Регистрация прошла успешно."},
-        status_code=status.HTTP_201_CREATED,
-    )
-    return set_tokens_in_response(response=response, user=user)
+
+    logger.info(f"Пользователь успешно зарегистрировался. email: {user_data.email}")
+    return set_tokens_in_response(response=signup_response, user=user)
 
 
 @router.post("/login")
@@ -84,11 +88,9 @@ async def login(
     if stored_code != email_code:
         raise invalid_email_code_exception
     await redis_pool.delete(verification_code_redis_key)
-    response: JSONResponse = JSONResponse(
-        content={"message": "Авторизация прошла успешно."},
-        status_code=status.HTTP_200_OK,
-    )
-    return set_tokens_in_response(response=response, user=user)
+
+    logger.info(f"Пользователь успешно авторизовался. email: {user_data.email}")
+    return set_tokens_in_response(response=login_response, user=user)
 
 
 @router.post("/reset-password/{key}")
@@ -116,15 +118,16 @@ async def reset_password(
     )
 
     await redis_pool.delete(reset_password_redis_key)
+    logger.info(f"Пользователь успешно обновил пароль. email: {user_data.email}")
 
-    return JSONResponse(
-        content={"message": "Пароль был успешно обновлен."},
-        status_code=status.HTTP_200_OK,
-    )
+    return reset_password_response
 
 
 @router.get("/protected", response_model=UserSchema)
 async def protected(
     user: UserSchema = Depends(get_current_user_with_access_token),
 ) -> UserSchema:
+    logger.info(
+        f"Пользователь успешно зашел на защищенную страницу. email: {user.email}"
+    )
     return user

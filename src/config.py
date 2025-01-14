@@ -1,3 +1,5 @@
+import logging
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from src.container import BASE_DIR
 
@@ -58,6 +60,15 @@ class TasksSettings(BaseSettings):
     )
 
 
+class LoggingSettings(BaseSettings):
+    logging_level: int = logging.INFO
+
+    model_config = SettingsConfigDict(
+        case_sensitive=True,
+    )
+
+
 web_settings = WebSettings()  # type: ignore
 database_settings = DatabaseSettings()  # type: ignore
 tasks_settings = TasksSettings()  # type: ignore
+logging_settings = LoggingSettings()  # type: ignore

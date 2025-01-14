@@ -6,7 +6,6 @@ from src.schemas import UserSchema, UserPasswordSchema
 from src.database import AsyncSessionDep
 from src.models import UserModel
 from src.exceptions import user_not_found_exception, reset_user_password_exception
-from src.container import logger
 
 
 async def create_user(
@@ -51,18 +50,12 @@ async def update_user_with_email(  # type: ignore
     session: AsyncSessionDep, user_email: EmailStr, show_user: bool = False, **attrs
 ) -> UserSchema | None:
     user = await select_user_instance(session=session, email=user_email)
-    from src.container import logger
-
-    logger.info(f"{user=}")
     if not user:
         raise user_not_found_exception
 
     for key, value in attrs.items():
         if hasattr(user, key):
-            logger.info(f"{key=}")
-            logger.info(f"{value=}")
             setattr(user, key, value)
-            logger.info(f"{user=}")
 
     try:
         await session.commit()

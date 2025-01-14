@@ -1,6 +1,11 @@
 import pytest
 
-from src.container import logger
+import logging
+from src.container import configure_logging
+from src.config import logging_settings
+
+logger = logging.getLogger(__name__)
+configure_logging(level=logging_settings.logging_level)
 
 
 @pytest.mark.asyncio

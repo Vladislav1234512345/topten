@@ -10,7 +10,12 @@ from src.v1.auth.exceptions import current_user_yet_exists_exception
 from src.v1.email.schemas import EmailPasswordSchema
 from src.v1.jwt.config import jwt_settings
 from src.v1.jwt.utils import encode_jwt, hash_password
-from src.container import logger
+import logging
+from src.container import configure_logging
+from src.config import logging_settings
+
+logger = logging.getLogger(__name__)
+configure_logging(level=logging_settings.logging_level)
 
 
 @pytest.fixture(scope="module")
@@ -62,7 +67,6 @@ async def create_db_and_tables_and_user_stuff() -> True:
         )
 
     logger.info("User was created successfully!")
-    logger.info(f"{user=}")
 
     return True
 
@@ -77,7 +81,6 @@ async def create_access_token_stuff() -> str:
         "admin": stuff_user.is_admin,
         "stuff": stuff_user.is_stuff,
     }
-    logger.info(f"{jwt_payload_access_token}")
     access_token = encode_jwt(
         payload=jwt_payload_access_token,
         expire_timedelta=jwt_settings.access_token_expire_minutes,

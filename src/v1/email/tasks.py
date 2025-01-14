@@ -5,9 +5,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
-from src.container import logger
+from src.config import logging_settings
+from src.container import configure_logging
 from src.worker import app
 from src.v1.email.config import email_settings
+import logging
+
+
+logger = logging.getLogger(__name__)
+configure_logging(level=logging_settings.logging_level)
 
 
 @app.task  # type: ignore
@@ -15,6 +21,7 @@ def send_email_reset_password(receiver_email: str, key: str) -> None:
     subject = "Сброс пароля"
     body = f"Ваш ключ для сброса пароля: {key}"
     send_email(receiver_email=receiver_email, subject=subject, body=body)
+    logger.info(f"Ключ для сброса пароля успешно отправлен на почту: {receiver_email}")
 
 
 @app.task  # type: ignore
@@ -22,6 +29,7 @@ def send_email_verification_code(receiver_email: str, code: str) -> None:
     subject = "Код авторизации"
     body = f"Ваш код подтверждения: {code}"
     send_email(receiver_email=receiver_email, subject=subject, body=body)
+    logger.info(f"Код авторизации успешно отправлен на почту: {receiver_email}")
 
 
 @app.task  # type: ignore
@@ -45,9 +53,10 @@ def send_email(
                     f"attachment; filename={attachment_path.split("/")[-1]}",
                 )
                 msg.attach(application)
+        logger.info(f"Вложение успешно прикреплено в письме на почту: {receiver_email}")
     except:
         logger.error(
-            f"Произошла ошибка в момент закрепления вложения в письмо на почту {receiver_email}"
+            f"Произошла ошибка крепления вложения в письмо на почту: {receiver_email}"
         )
 
     try:

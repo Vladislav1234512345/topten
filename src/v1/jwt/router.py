@@ -1,10 +1,16 @@
 from fastapi import APIRouter, Depends
 from starlette.responses import JSONResponse
-from starlette import status
 
 from src.schemas import UserSchema
 from .dependencies import get_current_user_with_refresh_token
 from .utils import set_tokens_in_response
+from .responses import tokens_refresh_response
+import logging
+from src.container import configure_logging
+from src.config import logging_settings
+
+logger = logging.getLogger(__name__)
+configure_logging(level=logging_settings.logging_level)
 
 router = APIRouter()
 
@@ -13,9 +19,5 @@ router = APIRouter()
 def refresh(
     user: UserSchema = Depends(get_current_user_with_refresh_token),
 ) -> JSONResponse:
-
-    response: JSONResponse = JSONResponse(
-        content={"message": "Токены успешно обновлены."}, status_code=status.HTTP_200_OK
-    )
-
-    return set_tokens_in_response(response=response, user=user)
+    logger.info(f"Токены пользователя успешно обновлены. email: {user.email}")
+    return set_tokens_in_response(response=tokens_refresh_response, user=user)

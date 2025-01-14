@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from redis.asyncio import Redis
 
 from .schemas import EmailPasswordSchema, EmailSchema
+from .responses import verification_code_email_response, reset_password_email_response
 from src.database import AsyncSessionDep, get_redis_pool
 from .utils import generate_verification_code, generate_password
 from .config import email_settings
@@ -15,6 +16,12 @@ from src.exceptions import (
 from src.v1.jwt.utils import validate_password
 from src.v1.email.tasks import send_email_reset_password, send_email_verification_code
 from src.utils import select_user
+import logging
+from src.container import configure_logging
+from src.config import logging_settings
+
+logger = logging.getLogger(__name__)
+configure_logging(level=logging_settings.logging_level)
 
 
 router = APIRouter()
@@ -45,11 +52,10 @@ async def verification_code(
     await redis_pool.set(
         verification_code_redis_key, email_code, ex=email_settings.expire_time
     )
-
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"message": "Сообщение с кодом верификации успешно отправлено."},
+    logger.info(
+        f"Сообщение с кодом верификации успешно отправлено пользователю. email: {user_data.email}"
     )
+    return verification_code_email_response
 
 
 @router.post("/reset-password")
@@ -74,8 +80,7 @@ async def reset_password(
         email_reset_password_key,
         ex=email_settings.expire_time,
     )
-
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"message": "Сообщение для сброса пароля успешно отправлено."},
+    logger.info(
+        f"Сообщение для сброса пароля успешно отправлено пользователю. email: {user_data.email}"
     )
+    return reset_password_email_response
