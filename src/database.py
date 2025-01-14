@@ -1,13 +1,13 @@
-from typing import Annotated, AsyncGenerator
+from typing import Annotated, AsyncGenerator, AsyncIterator
 
 from fastapi import Depends
+from redis.asyncio import Redis, from_url
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, mapped_column
 from sqlalchemy import text, String
 import datetime
 
-from src.config import database_settings
-
+from src.config import database_settings, tasks_settings
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
 str_256 = Annotated[str, 256]
@@ -37,16 +37,18 @@ class Base(DeclarativeBase):
         return f"{self.__class__.__name__}({', '.join(columns)})"
 
 
-engine = create_async_engine(url=database_settings.POSTGRES_URL_asyncpg, echo=False)
+async_engine = create_async_engine(
+    url=database_settings.POSTGRES_URL_asyncpg, echo=False
+)
 
 
 async_session_factory = async_sessionmaker(
-    bind=engine, class_=AsyncSession, expire_on_commit=False
+    bind=async_engine, class_=AsyncSession, expire_on_commit=False
 )
 
 
 async def create_db_and_tables() -> None:
-    async with engine.begin() as conn:
+    async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 
@@ -56,3 +58,14 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 AsyncSessionDep = Annotated[AsyncSession, Depends(get_async_session)]
+
+
+async def get_redis_pool() -> AsyncIterator[Redis]:
+    redis = await from_url(  # type: ignore
+        f"redis://{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
+        decode_responses=True,
+    )
+    try:
+        yield redis
+    finally:
+        await redis.aclose()

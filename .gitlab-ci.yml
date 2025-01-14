@@ -1,8 +1,23 @@
+variables:
+  IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+
+
 stages:
+  - build
   - setup
   - test
+  - deploy
 
-setup_job:
+
+build-job:
+  stage: build
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t ${IMAGE_NAME} .
+    - docker push ${IMAGE_NAME}
+
+
+setup-job:
   stage: setup
   script:
     - apt-get update
@@ -20,10 +35,33 @@ setup_job:
       - certs/
       - env_files/
 
-test_job:
+
+test-job:
   stage: test
-  image: docker:latest
-  services:
-    - docker:20.10.7-dind
+  dependencies:
+    - build-job
   script:
-    - docker compose up --build -d
+    - docker pull ${IMAGE_NAME}
+    - IMAGE_NAME=${IMAGE_NAME} docker-compose up -d
+    - docker-compose exec backend pytest tests/v1/admin/test_admin_environment_setup.py
+    - docker-compose exec backend pytest tests/v1/admin/test_admin_protected.py
+    - docker-compose exec backend pytest tests/v1/stuff/test_stuff_environment_setup.py
+    - docker-compose exec backend pytest tests/v1/stuff/test_stuff_protected.py
+    - docker-compose exec backend pytest tests/v1/email/test_email_environment_setup.py
+    - docker-compose exec backend pytest tests/v1/email/test_email_reset_password.py
+    - docker-compose exec backend pytest tests/v1/email/test_email_verification_code.py
+    - docker-compose exec backend pytest tests/v1/auth/test_auth_environment_setup.py
+    - docker-compose exec backend pytest tests/v1/auth/test_auth_signup.py
+    - docker-compose exec backend pytest tests/v1/auth/test_auth_login.py
+    - docker-compose exec backend pytest tests/v1/auth/test_auth_protected.py
+    - docker-compose exec backend pytest tests/v1/jwt/test_jwt_environment_setup.py
+    - docker-compose exec backend pytest tests/v1/jwt/test_jwt_refresh.py
+    - docker-compose down
+
+
+deploy-job:
+  dependencies:
+    - test-job
+  stage: deploy
+  script:
+    - IMAGE_NAME=${IMAGE_NAME} docker compose up -d

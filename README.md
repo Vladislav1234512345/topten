@@ -81,32 +81,56 @@ openssl rsa -in jwt-private.pem -outform PEM -pubout -out jwt-public.pem
 ***
 
 **Step-3:**
+
+*Windows:*
 ```shell
 # Install all requirements
 pip install -r base.txt
 ```
 
+*Linux/MacOS:*
+```shell
+# Install all requirements
+pip3 install -r base.txt
+```
+
 ***
 
 **Step-4:**
+
+*Windows:*
 ```shell
-# Run the redis
+# Run the redis server with docker
 docker run --name redis --rm -p 6379:6379 redis
+```
+
+*Linux/MacOS:*
+```shell
+# Run the redis server
+redis-server --bind localhost --port 6379
 ```
 
 ***
 
 **Step-5:**
+
+*Windows:*
 ```shell
-# Run the rabbitmq
+# Run the rabbitmq server with docker
 docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.0-management
+```
+
+*Linux/MacOS:*
+```shell
+# Run the redis server
+rabbitmq-server --bind localhost --port 5672
 ```
 
 ***
 
 **Step-6:**
 ```shell
-# Run the celery
+# Run the celery worker
 celery -A src.worker worker --loglevel=INFO --pool=solo
 ```
 

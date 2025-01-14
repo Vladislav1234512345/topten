@@ -12,14 +12,12 @@ from src.container import logger
 async def create_user(
     user: UserModel, session: AsyncSessionDep, exception: HTTPException
 ) -> UserSchema:
-    logger.info(f"{user.email=}")
     session.add(user)
     try:
         await session.commit()
     except Exception:
         raise exception
     await session.refresh(user)
-    logger.info(f"{user.email=}")
 
     return UserSchema.model_validate(user, from_attributes=True)
 
@@ -28,9 +26,9 @@ async def select_user_instance(session: AsyncSessionDep, **filters) -> UserModel
     statement = select(UserModel).filter_by(**filters)
     try:
         result = await session.execute(statement)
+        user = result.scalar()
     except:
         raise user_not_found_exception
-    user = result.scalar_one_or_none()
 
     return user
 

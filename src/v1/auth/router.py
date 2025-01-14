@@ -4,12 +4,11 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from src.utils import select_user, update_user_with_email
-from src.v1.email.utils import get_redis_pool
 from src.v1.email.dependencies import validate_email_code
 from src.v1.jwt.dependencies import get_current_user_with_access_token
 from src.v1.jwt.utils import hash_password, set_tokens_in_response, validate_password
 from src.v1.email.config import email_settings
-from src.database import AsyncSessionDep
+from src.database import AsyncSessionDep, get_redis_pool
 from src.utils import create_user
 from src.schemas import UserSchema
 from src.models import UserModel
@@ -42,15 +41,11 @@ async def signup(
     verification_code_redis_key = (
         f"{email_settings.verification_code_name}:{user_data.email}"
     )
-    # Валидация email кода
     email_code = validate_email_code(email_code=user_data.email_code)
-    # Получение email кода из redis
     stored_code: str = await redis_pool.get(verification_code_redis_key)
-    # Проверка email кода на стороне сервера и кода, который отправил пользователь
     if stored_code != email_code:
         raise invalid_email_code_exception
-    # Создание экземпляра пользователя в базе данных
-    user: UserSchema = await create_user(
+    user = await create_user(
         user=UserModel(
             email=user_data.email,
             password=hash_password(password=user_data.password),
@@ -59,14 +54,11 @@ async def signup(
         session=session,
         exception=current_user_yet_exists_exception,
     )
-    # Удаление email кода из redis
     await redis_pool.delete(verification_code_redis_key)
-    # Статус код и контент ответа
     response: JSONResponse = JSONResponse(
         content={"message": "Регистрация прошла успешно."},
         status_code=status.HTTP_201_CREATED,
     )
-    # Настройка токенов и ответа сервера
     return set_tokens_in_response(response=response, user=user)
 
 
@@ -79,31 +71,23 @@ async def login(
     verification_code_redis_key = (
         f"{email_settings.verification_code_name}:{user_data.email}"
     )
-    # Поиск пользователя в базе данных по почте
     user = await select_user(session=session, get_password=True, email=user_data.email)
 
     if not user:
         raise user_not_found_exception
-    # Проверка пароля пользователя из базы даннх и пароля, который отправил сам пользователь
     if not validate_password(
         password=user_data.password, hashed_password=user.password  # type: ignore
     ):
         raise invalid_password_exception
-    # Валидация email кода
     email_code = validate_email_code(email_code=user_data.email_code)
-    # Получение email кода из redis
     stored_code: str = await redis_pool.get(verification_code_redis_key)
-    # Проверка email кода на стороне сервера и кода, который отправил пользователь
     if stored_code != email_code:
         raise invalid_email_code_exception
-    # Удаление email кода из redis
     await redis_pool.delete(verification_code_redis_key)
-    # Статус код и контент ответа
     response: JSONResponse = JSONResponse(
         content={"message": "Авторизация прошла успешно."},
         status_code=status.HTTP_200_OK,
     )
-    # Настройка токенов и ответа сервера
     return set_tokens_in_response(response=response, user=user)
 
 

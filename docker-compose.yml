@@ -24,8 +24,7 @@ services:
       - "15672:15672"
 
   backend:
-      image: vladislav1234512345/topten:1.0.4
-      platform: linux/amd64
+      image: ${IMAGE_NAME}
       command: >
         sh -c "celery -A src.worker worker --loglevel=INFO --pool=solo & python3 src/main.py"
       volumes:
