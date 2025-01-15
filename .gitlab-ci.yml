@@ -12,10 +12,10 @@ stages:
 build-job:
   stage: build
   script:
-    - echo "ENV_FILE: $ENV_FILE"
-    - echo "ENV_FILE_DB: $ENV_FILE_DB"
-    - echo "ENV_FILE_EMAIL: $ENV_FILE_EMAIL"
-    - echo "ENV_FILE_TASKS: $ENV_FILE_TASKS"
+    - echo "ENV_FILE: ${ENV_FILE}"
+    - echo "ENV_FILE_DB: ${ENV_FILE_DB}"
+    - echo "ENV_FILE_EMAIL: ${ENV_FILE_EMAIL}"
+    - echo "ENV_FILE_TASKS: ${ENV_FILE_TASKS}"
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker build -t ${IMAGE_NAME} .
     - docker push ${IMAGE_NAME}
