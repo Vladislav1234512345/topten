@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.testclient import TestClient
 
-from src.database import async_engine, Base, AsyncSessionDep, async_session_factory
+from src.database import async_engine, Base, async_session_factory
 from src.models import UserModel
 from src.utils import create_user
 from src.v1.jwt import router
