@@ -52,6 +52,7 @@ test-job:
   dependencies:
     - setup-job
   script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker pull ${IMAGE_NAME}
     - IMAGE_NAME=${IMAGE_NAME} docker-compose up -d
     - docker-compose exec backend pytest tests/v1/admin/test_admin_environment_setup.py
