@@ -12,6 +12,7 @@ stages:
 build-job:
   stage: build
   script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker build -t ${IMAGE_NAME} .
     - docker push ${IMAGE_NAME}
   tags:
