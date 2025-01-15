@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 
-def configure_logging(level: int = logging.INFO):
+def configure_logging(level: int = logging.INFO) -> None:
     logging.basicConfig(
         level=level,
         datefmt="%Y-%m-%d %H:%M:%S",

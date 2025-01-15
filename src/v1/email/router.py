@@ -1,5 +1,4 @@
 from starlette.responses import JSONResponse
-from starlette import status
 from fastapi import APIRouter, Depends
 from redis.asyncio import Redis
 
@@ -37,6 +36,10 @@ async def verification_code(
         f"{email_settings.verification_code_name}:{user_data.email}"
     )
     if await redis_pool.get(verification_code_redis_key):
+        logger.warning(
+            "Too many requests ('/v1/email/verification-code'), email: %s",
+            user_data.email,
+        )
         raise too_many_requests_exception
     user = await select_user(session=session, email=user_data.email, get_password=True)
 
@@ -44,6 +47,7 @@ async def verification_code(
         if not validate_password(
             password=user_data.password, hashed_password=user.password  # type: ignore
         ):
+            logger.warning("Incorrect password, email: %s", user_data.email)
             raise invalid_password_exception
     email_code = generate_verification_code()
     send_email_verification_code.delay(
@@ -53,7 +57,8 @@ async def verification_code(
         verification_code_redis_key, email_code, ex=email_settings.expire_time
     )
     logger.info(
-        f"Сообщение с кодом верификации успешно отправлено пользователю. email: {user_data.email}"
+        "The verification code email has been successfully sent to user, email: %s",
+        user_data.email,
     )
     return verification_code_email_response
 
@@ -66,10 +71,14 @@ async def reset_password(
 ) -> JSONResponse:
     reset_password_redis_key = f"{email_settings.reset_password_name}:{user_data.email}"
     if await redis_pool.get(reset_password_redis_key):
+        logger.warning(
+            "Too many requests ('/v1/email/reset-password'), email: %s", user_data.email
+        )
         raise too_many_requests_exception
     user = await select_user(session=session, email=user_data.email)
 
     if not user:
+        logger.warning("Incorrect password, email: %s", user_data.email)
         raise user_not_found_exception
     email_reset_password_key = generate_password()
     send_email_reset_password.delay(
@@ -81,6 +90,7 @@ async def reset_password(
         ex=email_settings.expire_time,
     )
     logger.info(
-        f"Сообщение для сброса пароля успешно отправлено пользователю. email: {user_data.email}"
+        "The password reset email has been successfully sent to the user, email: %s",
+        user_data.email,
     )
     return reset_password_email_response

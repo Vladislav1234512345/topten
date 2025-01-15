@@ -50,6 +50,12 @@ async def signup(
     email_code = validate_email_code(email_code=user_data.email_code)
     stored_code: str = await redis_pool.get(verification_code_redis_key)
     if stored_code != email_code:
+        logger.warning(
+            "Incorrect verification code, email: %s, expected code: %s, received code: %s",
+            user_data.email,
+            stored_code,
+            email_code,
+        )
         raise invalid_email_code_exception
     user = await create_user(
         user=UserModel(
@@ -62,7 +68,7 @@ async def signup(
     )
     await redis_pool.delete(verification_code_redis_key)
 
-    logger.info(f"Пользователь успешно зарегистрировался. email: {user_data.email}")
+    logger.info(f"User have successfully signed up, email: %s", user_data.email)
     return set_tokens_in_response(response=signup_response, user=user)
 
 
@@ -78,18 +84,26 @@ async def login(
     user = await select_user(session=session, get_password=True, email=user_data.email)
 
     if not user:
+        logger.warning("User not found, email: %s", user_data.email)
         raise user_not_found_exception
     if not validate_password(
         password=user_data.password, hashed_password=user.password  # type: ignore
     ):
+        logger.warning("Incorrect password, email: %s", user_data.email)
         raise invalid_password_exception
     email_code = validate_email_code(email_code=user_data.email_code)
     stored_code: str = await redis_pool.get(verification_code_redis_key)
     if stored_code != email_code:
+        logger.warning(
+            "Incorrect verification code, email: %s, expected code: %s, received code: %s",
+            user_data.email,
+            stored_code,
+            email_code,
+        )
         raise invalid_email_code_exception
     await redis_pool.delete(verification_code_redis_key)
 
-    logger.info(f"Пользователь успешно авторизовался. email: {user_data.email}")
+    logger.info(f"User have successfully logged in, email: %s", user_data.email)
     return set_tokens_in_response(response=login_response, user=user)
 
 
@@ -101,13 +115,12 @@ async def reset_password(
     redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
     reset_password_redis_key = f"{email_settings.reset_password_name}:{user_data.email}"
-    # Получение email кода из redis
     stored_reset_password_key: str = await redis_pool.get(reset_password_redis_key)
-    # Проверка на совпадение первого и второго пароля
     if user_data.password != user_data.password2:
+        logger.warning("Passwords do not match, email: %s", user_data.email)
         raise different_passwords_exception
-    # Проверка email ключа для сброса пароля на стороне сервера и ключа, который и есть endpoint - /{key}
     if key != stored_reset_password_key:
+        logger.warning("Incorrect reset password key, email: %s", user_data.email)
         raise invalid_reset_password_key_exception
 
     await update_user_with_email(
@@ -118,8 +131,9 @@ async def reset_password(
     )
 
     await redis_pool.delete(reset_password_redis_key)
-    logger.info(f"Пользователь успешно обновил пароль. email: {user_data.email}")
-
+    logger.info(
+        f"User have successfully updated the password, email: %s", user_data.email
+    )
     return reset_password_response
 
 
@@ -128,6 +142,7 @@ async def protected(
     user: UserSchema = Depends(get_current_user_with_access_token),
 ) -> UserSchema:
     logger.info(
-        f"Пользователь успешно зашел на защищенную страницу. email: {user.email}"
+        f"User have successfully visited the protected page, email: %s", user.email
     )
+
     return user

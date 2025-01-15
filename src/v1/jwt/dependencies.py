@@ -13,6 +13,7 @@ from .exceptions import (
     invalid_refresh_token_exception,
     refresh_token_not_found_exception,
     expired_token_exception,
+    access_token_not_found_exception,
 )
 from .utils import decode_jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
@@ -21,6 +22,13 @@ from src.database import AsyncSessionDep
 from typing import Annotated, Any
 from .config import jwt_settings
 from src.utils import select_user
+import logging
+from src.container import configure_logging
+from src.config import logging_settings
+
+logger = logging.getLogger(__name__)
+configure_logging(level=logging_settings.logging_level)
+
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/src/v1/jwt/login")
 
@@ -30,12 +38,15 @@ def get_current_access_token_payload(
 ) -> dict[str, Any]:
     try:
         if authorization is None:
-            raise invalid_access_token_exception
+            logger.warning("Access token not found.")
+            raise access_token_not_found_exception
         access_token = authorization.split(jwt_settings.access_token_type)[-1].strip()
         payload: dict[str, Any] = decode_jwt(token=access_token)
     except ExpiredSignatureError:
+        logger.warning("Expired access token.")
         raise expired_token_exception
     except InvalidTokenError:
+        logger.warning("Invalid access token.")
         raise invalid_access_token_exception
     return payload
 
@@ -44,12 +55,15 @@ def get_current_refresh_token_payload(
     refresh_token: Annotated[str | None, Cookie()]
 ) -> dict[str, Any]:
     if refresh_token is None:
+        logger.warning("Refresh token not found.")
         raise refresh_token_not_found_exception
     try:
         payload: dict[str, Any] = decode_jwt(token=refresh_token)
     except ExpiredSignatureError:
+        logger.warning("Expired refresh token.")
         raise expired_token_exception
     except InvalidTokenError:
+        logger.warning("Invalid refresh token.")
         raise invalid_refresh_token_exception
     return payload
 
@@ -58,7 +72,11 @@ def validate_token_type(payload: dict[str, Any], token_type: str) -> bool:
     current_token_type = str(payload.get("type"))
     if current_token_type == token_type:
         return True
-
+    logger.error(
+        "Incorrect type token, expected token type: %r, received token type: %r",
+        token_type,
+        current_token_type,
+    )
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail=f"Неверный тип токена {current_token_type!r}, ожидался {token_type!r}",
@@ -68,14 +86,15 @@ def validate_token_type(payload: dict[str, Any], token_type: str) -> bool:
 def validate_token_admin(payload: dict[str, Any]) -> bool:
     is_user_admin = bool(payload.get("admin"))
     if not is_user_admin:
+        logger.warning("User is not admin.")
         raise user_is_not_admin_exception
-
     return True
 
 
 def validate_token_stuff(payload: dict[str, Any]) -> bool:
     is_user_stuff = bool(payload.get("stuff"))
     if not is_user_stuff:
+        logger.warning("User is not stuff.")
         raise user_is_not_stuff_exception
 
     return True
@@ -88,11 +107,13 @@ async def get_user_by_token_uid(
     try:
         user_id = int(payload.get("uid"))  # type: ignore
     except ValueError:
+        logger.warning("User not found by uid in token.")
         raise user_not_found_exception
 
     user = await select_user(session=session, id=user_id)
 
     if not user:
+        logger.warning("User not found by uid in token.")
         raise user_not_found_exception
 
     return user

@@ -17,6 +17,7 @@ async def protected(
     user: UserSchema = Depends(get_current_admin_user_with_access_token),
 ) -> UserSchema:
     logger.info(
-        f"Пользователь успешно зашел на защищенную страницу для админов. email: {user.email}"
+        f"User have successfully visited the protected page just for admins, email: %s",
+        user.email,
     )
     return user

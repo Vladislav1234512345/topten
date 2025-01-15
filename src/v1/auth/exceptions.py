@@ -5,7 +5,7 @@ invalid_reset_password_key_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный ключ для сброса пароля!"
 )
 different_passwords_exception = HTTPException(
-    status_code=status.HTTP_400_BAD_REQUEST, detail="Повторный пароль не совпадает!"
+    status_code=status.HTTP_400_BAD_REQUEST, detail="Пароли не совпадает!"
 )
 current_user_yet_exists_exception = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,

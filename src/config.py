@@ -71,4 +71,4 @@ class LoggingSettings(BaseSettings):
 web_settings = WebSettings()  # type: ignore
 database_settings = DatabaseSettings()  # type: ignore
 tasks_settings = TasksSettings()  # type: ignore
-logging_settings = LoggingSettings()  # type: ignore
+logging_settings = LoggingSettings()

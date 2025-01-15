@@ -28,9 +28,9 @@ async def delete_and_create_db_and_tables():
 
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-        logger.info("Dropped all tables from database...")
+        logger.info("Dropped all tables from database.")
         await conn.run_sync(Base.metadata.create_all)
-        logger.info("Created all tables in database...")
+        logger.info("Created all tables in database.")
 
 
 class TestAuthUserSchema(EmailPasswordSchema):
