@@ -20,6 +20,7 @@ build-job:
 
 setup-job:
   stage: setup
+  image: ubuntu:latest
   script:
     - apt-get update
     - apt-get install -y openssl
