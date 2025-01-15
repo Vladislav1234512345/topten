@@ -54,21 +54,24 @@ test-job:
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker pull ${IMAGE_NAME}
-    - IMAGE_NAME=${IMAGE_NAME} docker-compose up -d
-    - docker-compose exec backend pytest tests/v1/admin/test_admin_environment_setup.py
-    - docker-compose exec backend pytest tests/v1/admin/test_admin_protected.py
-    - docker-compose exec backend pytest tests/v1/stuff/test_stuff_environment_setup.py
-    - docker-compose exec backend pytest tests/v1/stuff/test_stuff_protected.py
-    - docker-compose exec backend pytest tests/v1/email/test_email_environment_setup.py
-    - docker-compose exec backend pytest tests/v1/email/test_email_reset_password.py
-    - docker-compose exec backend pytest tests/v1/email/test_email_verification_code.py
-    - docker-compose exec backend pytest tests/v1/auth/test_auth_environment_setup.py
-    - docker-compose exec backend pytest tests/v1/auth/test_auth_signup.py
-    - docker-compose exec backend pytest tests/v1/auth/test_auth_login.py
-    - docker-compose exec backend pytest tests/v1/auth/test_auth_reset_password.py
-    - docker-compose exec backend pytest tests/v1/auth/test_auth_protected.py
-    - docker-compose exec backend pytest tests/v1/jwt/test_jwt_environment_setup.py
-    - docker-compose exec backend pytest tests/v1/jwt/test_jwt_refresh.py
+    - IMAGE_NAME=${IMAGE_NAME} docker compose up -d
+    - IMAGE_NAME=${IMAGE_NAME} docker compose exec backend /bin/sh
+    - export PYTHONPATH="/usr/src/app/src:$PYTHONPATH"
+    - pytest tests/v1/admin/test_admin_environment_setup.py
+    - pytest tests/v1/admin/test_admin_protected.py
+    - pytest tests/v1/stuff/test_stuff_environment_setup.py
+    - pytest tests/v1/stuff/test_stuff_protected.py
+    - pytest tests/v1/email/test_email_environment_setup.py
+    - pytest tests/v1/email/test_email_reset_password.py
+    - pytest tests/v1/email/test_email_verification_code.py
+    - pytest tests/v1/auth/test_auth_environment_setup.py
+    - pytest tests/v1/auth/test_auth_signup.py
+    - pytest tests/v1/auth/test_auth_login.py
+    - pytest tests/v1/auth/test_auth_reset_password.py
+    - pytest tests/v1/auth/test_auth_protected.py
+    - pytest tests/v1/jwt/test_jwt_environment_setup.py
+    - pytest tests/v1/jwt/test_jwt_refresh.py
+    - exit;
     - docker-compose down
   tags:
     - backend
