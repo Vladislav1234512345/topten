@@ -6,27 +6,29 @@ stages:
   - build
   - setup
   - test
-  - deploy
+  - merge-to-dev
+  - dev-deploy
 
 
 build-job:
   stage: build
   script:
-    - echo "ENV_FILE: ${ENV_FILE}"
-    - echo "ENV_FILE_DB: ${ENV_FILE_DB}"
-    - echo "ENV_FILE_EMAIL: ${ENV_FILE_EMAIL}"
-    - echo "ENV_FILE_TASKS: ${ENV_FILE_TASKS}"
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker build -t ${IMAGE_NAME} .
     - docker push ${IMAGE_NAME}
   tags:
     - backend
+  only:
+    - feature
 
 setup-job:
   stage: setup
-  image: alpine:latest
+  image: ubuntu:latest
+  dependencies:
+    - build-job
   script:
-    - apk add --no-cache openssl
+    - apt-get update
+    - apt-get install -y openssl
     - mkdir -p certs env_files
     - touch env_files/.env env_files/.env.db env_files/.env.email env_files/.env.tasks
     - openssl genrsa -out certs/jwt-private.pem 2048
@@ -41,12 +43,14 @@ setup-job:
       - env_files/
   tags:
     - backend
+  only:
+    - feature
 
 
 test-job:
   stage: test
   dependencies:
-    - build-job
+    - setup-job
   script:
     - docker pull ${IMAGE_NAME}
     - IMAGE_NAME=${IMAGE_NAME} docker-compose up -d
@@ -60,19 +64,37 @@ test-job:
     - docker-compose exec backend pytest tests/v1/auth/test_auth_environment_setup.py
     - docker-compose exec backend pytest tests/v1/auth/test_auth_signup.py
     - docker-compose exec backend pytest tests/v1/auth/test_auth_login.py
+    - docker-compose exec backend pytest tests/v1/auth/test_auth_reset_password.py
     - docker-compose exec backend pytest tests/v1/auth/test_auth_protected.py
     - docker-compose exec backend pytest tests/v1/jwt/test_jwt_environment_setup.py
     - docker-compose exec backend pytest tests/v1/jwt/test_jwt_refresh.py
     - docker-compose down
   tags:
     - backend
+  only:
+    - feature
 
 
-deploy-job:
+merge-to-dev-job:
   dependencies:
     - test-job
-  stage: deploy
+  stage: merge-to-dev
+  image: ubuntu:latest
   script:
-    - IMAGE_NAME=${IMAGE_NAME} docker compose up -d
+    - git checkout dev
+    - git fetch origin
+    - git merge origin/feature --no-commit --no-ff
+    - git push origin dev
   tags:
     - backend
+  only:
+    - feature
+
+
+dev-deploy-job:
+  stage: dev-deploy
+  script:
+    - IMAGE_NAME=${IMAGE_NAME} docker-compose up -d
+  only:
+    - dev
+
