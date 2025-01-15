@@ -61,6 +61,7 @@ test-job:
     - IMAGE_NAME=${IMAGE_NAME} docker compose up -d
     - IMAGE_NAME=${IMAGE_NAME} docker compose exec backend /bin/sh
     - export PYTHONPATH="/usr/src/app/src:$PYTHONPATH"
+    - pip3 install pytest-asyncio
     - pytest tests/v1/admin/test_admin_environment_setup.py
     - pytest tests/v1/admin/test_admin_protected.py
     - pytest tests/v1/stuff/test_stuff_environment_setup.py
