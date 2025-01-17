@@ -1,6 +1,5 @@
 FROM python:3.12-alpine
 
-# Установим системные зависимости
 RUN apk add --no-cache \
     gcc \
     musl-dev \
@@ -17,11 +16,12 @@ ENV PYTHONUNBUFFERED=1
 
 # Установим Python-зависимости
 WORKDIR /usr/src/app
-# Создадим папки env_files/, certs/
-RUN mkdir -p env_files certs
 
 # Копирование исходного кода
 COPY . .
+
+# Создадим папки env_files/, certs/
+RUN mkdir -p env_files certs
 
 # Устанавливаем зависимости из base.txt
 RUN pip install -r requirements/dev.txt --verbose
@@ -29,6 +29,9 @@ RUN pip install -r requirements/dev.txt --verbose
 # Обновление pip
 RUN pip install --upgrade pip
 
-# Указываем, что при запуске контейнера будет активироваться виртуальное окружение
+# Добавляем путь к src директории в окружение
+ENV PYTHONPATH="/usr/src/app/src:$PYTHONPATH"
+
+# Запуск main.py файла
 CMD ["sh", "-c", "python3 src/main.py"]
 

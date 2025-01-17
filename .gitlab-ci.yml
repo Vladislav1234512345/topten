@@ -3,33 +3,29 @@ variables:
 
 
 stages:
-  - build
-  - setup
-  - test
-  - merge-to-dev
-  - dev-deploy
+  - build-docker-image
+  - setup-environment-directories
+  - build-docker-compose
+  - merge-feature-to-dev
 
 
-build-job:
-  stage: build
+build-docker-image-job:
+  stage: build-docker-image
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
-    - if docker pull ${IMAGE_NAME}; then
-        echo "Образ ${IMAGE_NAME} уже существует. Пропускаем сборку.";
-      else
-        docker build -t ${IMAGE_NAME} .;
-        docker push ${IMAGE_NAME};
-      fi
+    - docker build -t ${IMAGE_NAME} .;
+    - docker push ${IMAGE_NAME};
   tags:
     - backend
   only:
     - feature
+    - dev
+    - main
+
 
 setup-job:
-  stage: setup
+  stage: setup-environment-directories
   image: ubuntu:latest
-  dependencies:
-    - build-job
   script:
     - apt-get update
     - apt-get install -y openssl
@@ -49,61 +45,53 @@ setup-job:
     - backend
   only:
     - feature
+    - dev
+    - main
 
 
-test-job:
-  stage: test
-  dependencies:
-    - setup-job
+build-docker-compose-job:
+  stage: build-docker-compose
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker pull ${IMAGE_NAME}
     - IMAGE_NAME=${IMAGE_NAME} docker compose up -d
-    - IMAGE_NAME=${IMAGE_NAME} docker compose exec backend /bin/sh
-    - export PYTHONPATH="/usr/src/app/src:$PYTHONPATH"
-    - pip3 install pytest-asyncio
-    - pytest tests/v1/admin/test_admin_environment_setup.py
-    - pytest tests/v1/admin/test_admin_protected.py
-    - pytest tests/v1/stuff/test_stuff_environment_setup.py
-    - pytest tests/v1/stuff/test_stuff_protected.py
-    - pytest tests/v1/email/test_email_environment_setup.py
-    - pytest tests/v1/email/test_email_reset_password.py
-    - pytest tests/v1/email/test_email_verification_code.py
-    - pytest tests/v1/auth/test_auth_environment_setup.py
-    - pytest tests/v1/auth/test_auth_signup.py
-    - pytest tests/v1/auth/test_auth_login.py
-    - pytest tests/v1/auth/test_auth_reset_password.py
-    - pytest tests/v1/auth/test_auth_protected.py
-    - pytest tests/v1/jwt/test_jwt_environment_setup.py
-    - pytest tests/v1/jwt/test_jwt_refresh.py
-    - exit;
-    - docker-compose down
   tags:
     - backend
   only:
     - feature
-
-
-merge-to-dev-job:
-  dependencies:
-    - test-job
-  stage: merge-to-dev
-  image: ubuntu:latest
-  script:
-    - git checkout dev
-    - git fetch origin
-    - git merge origin/feature --no-commit --no-ff
-    - git push origin dev
-  tags:
-    - backend
-  only:
-    - feature
-
-
-dev-deploy-job:
-  stage: dev-deploy
-  script:
-    - IMAGE_NAME=${IMAGE_NAME} docker-compose up -d
-  only:
     - dev
+    - main
+
+
+merge-feature-to-dev-job:
+  stage: merge-feature-to-dev
+  image: ubuntu:latest
+  before_script:
+    - apt-get update
+    - apt-get install -y git ssh-client
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - git config --global user.name "Vladislav1234512345"
+    - git config --global user.email "tolerantniy2104@gmail.com"
+  script:
+    - git remote set-url origin git@gitlab.com:top10edu/backend.git
+    - git fetch origin
+    - | 
+      if git show-ref --verify  --quiet refs/heads/dev; then
+        echo "a branch named 'dev' already exists";
+        git branch -D dev;
+        echo "dev branch was deleted."
+      else
+        echo "Switched to a new branch 'dev'";
+      fi
+    - git checkout -b dev;
+    - git merge origin/feature
+    - git push origin dev --force
+  tags:
+    - backend
+  only:
+    - feature
+
 

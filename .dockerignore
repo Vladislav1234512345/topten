@@ -9,3 +9,7 @@ env_files/
 
 dump.rdb
 erl_crash.dump
+
+*.txt
+*.json
+*.csv

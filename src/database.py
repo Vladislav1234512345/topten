@@ -57,7 +57,7 @@ async_session_factory = async_sessionmaker(
 async def create_db_and_tables() -> None:
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        logger.info("Создал все метаданные в базе данных!")
+        logger.info("Created all metadata in database.")
 
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:

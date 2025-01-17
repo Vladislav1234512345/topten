@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:latest
+    restart: always
     env_file:
       - env_files/.env.db
     ports:
@@ -10,21 +11,25 @@ services:
 
   redis:
     image: redis:latest
+    restart: always
     ports:
       - "6379:6379"
 
   rabbitmq:
     image: rabbitmq:latest
+    restart: always
     ports:
       - "5672:5672"
 
   rabbitmq-managment:
     image: rabbitmq:4.0-management
+    restart: always
     ports:
       - "15672:15672"
 
   backend:
       image: ${IMAGE_NAME}
+      restart: always
       command: >
         sh -c "celery -A src.worker worker --loglevel=INFO --pool=solo & python3 src/main.py"
       volumes:
