@@ -3,7 +3,7 @@ services:
     image: postgres:latest
     restart: always
     env_file:
-      - env_files/.env.db
+      - ${PWD}/env_files/.env.db
     ports:
       - "5432:5432"
     volumes:
@@ -33,13 +33,13 @@ services:
       command: >
         sh -c "celery -A src.worker worker --loglevel=INFO --pool=solo & python3 src/main.py"
       volumes:
-        - ./env_files:/usr/src/app/env_files
-        - ./certs:/usr/src/app/certs
+        - ${PWD}/env_files:/usr/src/app/env_files
+        - ${PWD}/certs:/usr/src/app/certs
       env_file:
-        - env_files/.env
-        - env_files/.env.db
-        - env_files/.env.email
-        - env_files/.env.tasks
+        - ${PWD}/env_files/.env
+        - ${PWD}/env_files/.env.db
+        - ${PWD}/env_files/.env.email
+        - ${PWD}/env_files/.env.tasks
       ports:
         - "8000:8000"
       depends_on:
