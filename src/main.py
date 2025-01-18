@@ -26,9 +26,10 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(router=v1_router)
 
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=web_settings.origins,
     allow_headers=["*"],
     allow_methods=["*"],
     allow_credentials=True,

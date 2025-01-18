@@ -8,10 +8,13 @@ class WebSettings(BaseSettings):
     WEBAPP_HOST: str
     WEBAPP_PORT: int
 
+    origins: tuple[str] = ("https://topuslugi.kz", "https://api.topuslugi.kz")
+
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / "env_files/.env",
         env_file_encoding="utf-8",
         case_sensitive=True,
+        extra="allow",
     )
 
 
