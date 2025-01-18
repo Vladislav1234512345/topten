@@ -25,11 +25,11 @@ def send_email_reset_password(receiver_email: str, key: str) -> None:
     )
     if email_was_sent:
         logger.info(
-            f"Ключ для сброса пароля успешно отправлен на почту: %s", receiver_email
+            f"Reset password key was successfully sent to the email: %s", receiver_email
         )
     else:
         logger.error(
-            "Произошла ошибка при отправке ключа для сброса пароля на почту: %s",
+            "An error occurred when sending the password reset key to the email: %s",
             receiver_email,
         )
 
@@ -42,10 +42,12 @@ def send_email_verification_code(receiver_email: str, code: str) -> None:
         receiver_email=receiver_email, subject=subject, body=body
     )
     if email_was_sent:
-        logger.info(f"Код авторизации успешно отправлен на почту: %s", receiver_email)
+        logger.info(
+            f"Verification code was successfully sent to the email: %s", receiver_email
+        )
     else:
         logger.error(
-            "Произошла ошибка при отправке кода авторизации на почту: %s",
+            "An error occurred when sending the verification code to the email: %s",
             receiver_email,
         )
 
@@ -72,11 +74,13 @@ def send_email(
                 )
                 msg.attach(application)
         logger.info(
-            f"Вложение успешно прикреплено в письме на почту: %s", receiver_email
+            f"The attachment was successfully added to the email to %r", receiver_email
         )
-    except:
+    except Exception as e:
         logger.error(
-            f"Произошла ошибка крепления вложения в письмо на почту: %s", receiver_email
+            f"An error occurred when adding the attachment to the email to %r\n%s",
+            receiver_email,
+            e,
         )
 
     try:
@@ -89,12 +93,12 @@ def send_email(
             )  # Log in to your email account
             text = msg.as_string()
             server.sendmail(email_settings.EMAIL_NAME, receiver_email, text)
-            logger.info(
-                f"Успешно было отправлено сообщение на почту %s", receiver_email
-            )
+            logger.info(f"Email was successfully sent to the email: %s", receiver_email)
             return True
     except Exception as e:
         logger.error(
-            f"Произошла ошибка отправки сообщения на почту %s:\n%s", receiver_email, e
+            f"An error occurred when sending the email to the email: %s\n%s",
+            receiver_email,
+            e,
         )
         return False
