@@ -3,7 +3,6 @@ from redis.asyncio import Redis
 from starlette.responses import JSONResponse
 
 from src.utils import select_user, update_user_with_email
-from src.v1.email.dependencies import validate_email_code
 from src.v1.jwt.dependencies import get_current_user_with_access_token
 from src.v1.jwt.utils import hash_password, set_tokens_in_response, validate_password
 from src.v1.email.config import email_settings
@@ -23,7 +22,6 @@ from src.exceptions import (
 )
 from src.v1.auth.exceptions import (
     invalid_reset_password_key_exception,
-    different_passwords_exception,
     current_user_yet_exists_exception,
 )
 from .responses import reset_password_response, signup_response, login_response
@@ -47,14 +45,13 @@ async def signup(
     verification_code_redis_key = (
         f"{email_settings.verification_code_name}:{user_data.email}"
     )
-    email_code = validate_email_code(email_code=user_data.email_code)
     stored_code: str = await redis_pool.get(verification_code_redis_key)
-    if stored_code != email_code:
+    if stored_code != user_data.email_code:
         logger.warning(
             "Incorrect verification code, email: %s, expected code: %s, received code: %s",
-            user_data.email,
+            user_data.email_code,
             stored_code,
-            email_code,
+            user_data.email_code,
         )
         raise invalid_email_code_exception
     user = await create_user(
@@ -91,14 +88,13 @@ async def login(
     ):
         logger.warning("Incorrect password, email: %s", user_data.email)
         raise invalid_password_exception
-    email_code = validate_email_code(email_code=user_data.email_code)
     stored_code: str = await redis_pool.get(verification_code_redis_key)
-    if stored_code != email_code:
+    if stored_code != user_data.email_code:
         logger.warning(
             "Incorrect verification code, email: %s, expected code: %s, received code: %s",
             user_data.email,
             stored_code,
-            email_code,
+            user_data.email_code,
         )
         raise invalid_email_code_exception
     await redis_pool.delete(verification_code_redis_key)
@@ -116,9 +112,6 @@ async def reset_password(
 ) -> JSONResponse:
     reset_password_redis_key = f"{email_settings.reset_password_name}:{user_data.email}"
     stored_reset_password_key: str = await redis_pool.get(reset_password_redis_key)
-    if user_data.password != user_data.password2:
-        logger.warning("Passwords do not match, email: %s", user_data.email)
-        raise different_passwords_exception
     if key != stored_reset_password_key:
         logger.warning("Incorrect reset password key, email: %s", user_data.email)
         raise invalid_reset_password_key_exception

@@ -33,7 +33,7 @@ async def test_auth_reset_password(client, get_auth_user):
     reset_password_json_data = {
         "email": user.email,
         "password": user.password,
-        "password2": user.password,
+        "password_reset": user.password,
     }
     response = client.post(
         f"/auth/reset-password/{email_password}",

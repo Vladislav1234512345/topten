@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from starlette import status
 from starlette.exceptions import HTTPException
 
@@ -33,4 +34,19 @@ user_is_not_admin_exception = HTTPException(
 user_is_not_stuff_exception = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,
     detail="Пользователь не является работником сервиса!",
+)
+different_passwords_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST, detail="Пароли не совпадает!"
+)
+password_must_contain_a_digit_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Пароль должен содержать хотя бы 1 цифру!",
+)
+password_must_contain_an_uppercase_letter_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Пароль должен содержать хотя бы 1 заглавную букву!",
+)
+password_min_length_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Длина пароля должна быть минимум 8 символов!",
 )

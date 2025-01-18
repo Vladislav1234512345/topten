@@ -42,7 +42,7 @@ class TestEmailUserSchema(EmailPasswordSchema):
 email_user = TestEmailUserSchema(
     id=1,
     email="antonkutorov@gmail.com",
-    password="qwerty1234",
+    password="Qwerty1234",
     first_name="Vladislav",
     is_admin=False,
     is_stuff=False,
