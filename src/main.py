@@ -26,11 +26,16 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(router=v1_router)
 
-origins: list[str] = ["https://topuslugi.kz", "https://api.topuslugi.kz"]
+cors_allowed_origins: list[str] = [
+    "https://topuslugi.kz",
+    "https://api.topuslugi.kz",
+    "http://localhost:3000",
+]
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=cors_allowed_origins,
     allow_headers=["*"],
     allow_methods=["*"],
     allow_credentials=True,
