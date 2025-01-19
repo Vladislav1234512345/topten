@@ -19,7 +19,7 @@ configure_logging(level=logging_settings.logging_level)
 @app.task  # type: ignore
 def send_email_reset_password(receiver_email: str, key: str) -> None:
     subject = "Сброс пароля"
-    body = f"Ваша ссылка для сброса пароля: {web_settings.CLIENT_DOMAIN_LINK}/reset-password/{key}"
+    body = f"Ваша ссылка для сброса пароля: {web_settings.FRONTEND_LINK}/reset-password/{key}"
     email_was_sent = send_email(
         receiver_email=receiver_email, subject=subject, body=body
     )

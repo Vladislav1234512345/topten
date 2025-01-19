@@ -10,7 +10,7 @@ from .config import email_settings
 from src.exceptions import (
     invalid_password_exception,
     user_not_found_exception,
-    too_many_requests_exception,
+    too_many_email_requests_exception,
 )
 from src.v1.jwt.utils import validate_password
 from src.v1.email.tasks import send_email_reset_password, send_email_verification_code
@@ -42,7 +42,7 @@ async def verification_code(
             "Too many requests ('/v1/email/verification-code'), email: %s",
             user_data.email,
         )
-        raise too_many_requests_exception
+        raise too_many_email_requests_exception
     user = await select_user(session=session, email=user_data.email, get_password=True)
 
     if user:
@@ -83,7 +83,7 @@ async def reset_password(
         logger.warning(
             "Too many requests ('/v1/email/reset-password'), email: %s", user_data.email
         )
-        raise too_many_requests_exception
+        raise too_many_email_requests_exception
     user = await select_user(session=session, email=user_data.email)
 
     if not user:

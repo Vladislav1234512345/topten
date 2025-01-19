@@ -15,9 +15,9 @@ user_not_found_exception = HTTPException(
 invalid_email_code_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный код подтверждения!"
 )
-too_many_requests_exception = HTTPException(
+too_many_email_requests_exception = HTTPException(
     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-    detail="Слишком частые запросы. Попробуйте позже!",
+    detail="Слишком частые запросы! Попробуйте посмотреть вашу почту!",
 )
 invalid_email_exception = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,

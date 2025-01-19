@@ -12,7 +12,7 @@ class JWTSettings(BaseSettings):
     public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
     access_token_expire_minutes: timedelta = timedelta(minutes=15)
-    refresh_token_expire_days: timedelta = timedelta(days=7)
+    refresh_token_expire_days: timedelta = timedelta(days=31)
     access_token_type: str = "Bearer"
     jwt_access_token_type: str = "access"
     jwt_refresh_token_type: str = "refresh"
@@ -25,6 +25,7 @@ class CookiesSettings(BaseSettings):
     httponly: bool = True
     SAMESITE: Literal["lax", "strict", "none"] | None
     SECURE: bool
+    DOMAIN: str
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / "env_files/.env.cookies",

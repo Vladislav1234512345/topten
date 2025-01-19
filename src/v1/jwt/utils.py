@@ -14,8 +14,8 @@ def encode_jwt(
     algorithm: str = jwt_settings.algorithm,
 ) -> str:
     to_encode = payload.copy()
-    now: datetime = datetime.now(UTC)
-    expire: datetime = now + expire_timedelta
+    now = datetime.now(UTC)
+    expire = now + expire_timedelta
     to_encode.update(iat=now, exp=expire)
     encoded_jwt = jwt.encode(payload=to_encode, key=private_key, algorithm=algorithm)
 
@@ -27,9 +27,7 @@ def decode_jwt(
     public_key: str = jwt_settings.public_key_path.read_text(),
     algorithm: str = jwt_settings.algorithm,
 ) -> dict[str, Any]:
-    decoded_jwt: dict[str, Any] = jwt.decode(
-        jwt=token, key=public_key, algorithms=[algorithm]
-    )
+    decoded_jwt = jwt.decode(jwt=token, key=public_key, algorithms=[algorithm])
     return decoded_jwt
 
 
@@ -76,13 +74,15 @@ def set_tokens_in_response(response: JSONResponse, user: UserSchema) -> JSONResp
     response.headers["Authorization"] = (
         f"{jwt_settings.access_token_type} {access_token}"
     )
-
+    now = datetime.now(UTC)
     response.set_cookie(
         key=cookies_settings.refresh_token_name,
         value=refresh_token,
         httponly=cookies_settings.httponly,
         samesite=cookies_settings.SAMESITE,
         secure=cookies_settings.SECURE,
+        expires=now + jwt_settings.refresh_token_expire_days,
+        domain=cookies_settings.DOMAIN,
     )
 
     return response
