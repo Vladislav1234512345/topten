@@ -29,9 +29,6 @@ RUN pip install -r requirements/dev.txt --verbose
 # Обновление pip
 RUN pip install --upgrade pip
 
-# Добавляем путь к src директории в окружение
-ENV PYTHONPATH="/usr/src/app/src:$PYTHONPATH"
-
 # Запуск main.py файла
 CMD ["sh", "-c", "python3 src/main.py"]
 
