@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
-from src.config import logging_settings
+from src.config import logging_settings, web_settings
 from src.container import configure_logging
 from src.worker import app
 from src.v1.email.config import email_settings
@@ -19,17 +19,18 @@ configure_logging(level=logging_settings.logging_level)
 @app.task  # type: ignore
 def send_email_reset_password(receiver_email: str, key: str) -> None:
     subject = "Сброс пароля"
-    body = f"Ваш ключ для сброса пароля: {key}"
+    body = f"Ваша ссылка для сброса пароля: {web_settings.CLIENT_DOMAIN_LINK}/reset-password/{key}"
     email_was_sent = send_email(
         receiver_email=receiver_email, subject=subject, body=body
     )
     if email_was_sent:
         logger.info(
-            f"Reset password key was successfully sent to the email: %s", receiver_email
+            f"Reset password link was successfully sent to the email: %s",
+            receiver_email,
         )
     else:
         logger.error(
-            "An error occurred when sending the password reset key to the email: %s",
+            "An error occurred when sending the password reset link to the email: %s",
             receiver_email,
         )
 

@@ -18,6 +18,7 @@ from src.utils import select_user
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
+from ..auth.exceptions import current_user_yet_exists_exception
 
 logger = logging.getLogger(__name__)
 configure_logging(level=logging_settings.logging_level)
@@ -31,6 +32,7 @@ async def verification_code(
     session: AsyncSessionDep,
     user_data: EmailPasswordSchema,
     redis_pool: Redis = Depends(get_redis_pool),
+    is_new_account: bool = False,
 ) -> JSONResponse:
     verification_code_redis_key = (
         f"{email_settings.verification_code_name}:{user_data.email}"
@@ -44,11 +46,18 @@ async def verification_code(
     user = await select_user(session=session, email=user_data.email, get_password=True)
 
     if user:
+        if is_new_account:
+            logger.warning("Current user has been existed yet, email: %s", user.email)
+            raise current_user_yet_exists_exception
         if not validate_password(
             password=user_data.password, hashed_password=user.password  # type: ignore
         ):
             logger.warning("Incorrect password, email: %s", user_data.email)
             raise invalid_password_exception
+    else:
+        if not is_new_account:
+            raise user_not_found_exception
+
     email_code = generate_verification_code()
     send_email_verification_code.delay(
         receiver_email=str(user_data.email), code=email_code

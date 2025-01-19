@@ -27,8 +27,8 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(router=v1_router)
 
 cors_allowed_origins: list[str] = [
-    "https://topuslugi.kz",
-    "https://api.topuslugi.kz",
+    web_settings.WEBAPP_DOMAIN_LINK,
+    web_settings.CLIENT_DOMAIN_LINK,
     "http://localhost:3000",
 ]
 

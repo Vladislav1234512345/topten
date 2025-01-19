@@ -7,6 +7,8 @@ from src.container import BASE_DIR
 class WebSettings(BaseSettings):
     WEBAPP_HOST: str
     WEBAPP_PORT: int
+    WEBAPP_DOMAIN_LINK: str
+    CLIENT_DOMAIN_LINK: str
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / "env_files/.env",
