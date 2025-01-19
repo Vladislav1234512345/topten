@@ -26,11 +26,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(router=v1_router)
 
-cors_allowed_origins: list[str] = [
-    web_settings.WEBAPP_DOMAIN_LINK,
-    web_settings.CLIENT_DOMAIN_LINK,
-    "http://localhost:3000",
-]
+cors_allowed_origins: list[str] = web_settings.CORS_ALLOWED_ORIGINS.split(";")
 
 
 app.add_middleware(
@@ -39,6 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
     allow_methods=["*"],
     allow_credentials=True,
+    expose_headers=["Authorization"],
 )
 
 

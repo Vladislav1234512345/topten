@@ -11,7 +11,7 @@ class EmailSettings(BaseSettings):
     SMTP_HOST: str
     SMTP_PORT: int
 
-    expire_time: timedelta = timedelta(minutes=2)
+    expire_time: timedelta = timedelta(minutes=5)
     verification_code_name: str = "code"
     reset_password_name: str = "password"
 

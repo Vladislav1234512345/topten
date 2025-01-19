@@ -37,6 +37,7 @@ services:
         - ${PWD}/certs:/usr/src/app/certs
       env_file:
         - ${PWD}/env_files/.env
+        - ${PWD}/env_files/.env.cookies
         - ${PWD}/env_files/.env.db
         - ${PWD}/env_files/.env.email
         - ${PWD}/env_files/.env.tasks

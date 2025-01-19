@@ -23,11 +23,16 @@ class JWTSettings(BaseSettings):
 class CookiesSettings(BaseSettings):
     refresh_token_name: str = "refresh_token"
     httponly: bool = True
-    samesite: Literal["lax", "strict", "none"] | None = "lax"
-    secure: bool = False
+    SAMESITE: Literal["lax", "strict", "none"] | None
+    SECURE: bool
 
-    model_config = SettingsConfigDict(case_sensitive=True)
+    model_config = SettingsConfigDict(
+        env_file=BASE_DIR / "env_files/.env.cookies",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="allow",
+    )
 
 
 jwt_settings = JWTSettings()
-cookies_settings = CookiesSettings()
+cookies_settings = CookiesSettings()  # type: ignore

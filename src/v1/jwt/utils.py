@@ -81,8 +81,8 @@ def set_tokens_in_response(response: JSONResponse, user: UserSchema) -> JSONResp
         key=cookies_settings.refresh_token_name,
         value=refresh_token,
         httponly=cookies_settings.httponly,
-        samesite=cookies_settings.samesite,
-        secure=cookies_settings.secure,
+        samesite=cookies_settings.SAMESITE,
+        secure=cookies_settings.SECURE,
     )
 
     return response
