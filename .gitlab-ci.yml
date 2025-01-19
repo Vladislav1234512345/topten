@@ -5,6 +5,7 @@ variables:
 stages:
   - build-docker-image
   - setup-environment-directories
+  - main-setup-environment-directories
   - build-docker-compose
   - merge-feature-to-dev
 
@@ -33,6 +34,7 @@ setup-job:
     - touch env_files/.env env_files/.env.db env_files/.env.email env_files/.env.tasks env_files/.env.cookies
     - openssl genrsa -out certs/jwt-private.pem 2048
     - openssl rsa -in certs/jwt-private.pem -outform PEM -pubout -out certs/jwt-public.pem
+    - cat "$DOCKER_ENV_FILE" > .env
     - cat "$ENV_FILE" > env_files/.env
     - cat "$ENV_FILE_COOKIES" > env_files/.env.сookies
     - cat "$ENV_FILE_DB" > env_files/.env.db
@@ -42,11 +44,38 @@ setup-job:
     paths:
       - certs/
       - env_files/
+      - .env
   tags:
     - backend
   only:
     - feature
     - dev
+
+
+main-setup-job:
+  stage: main-setup-environment-directories
+  image: ubuntu:latest
+  script:
+    - apt-get update
+    - apt-get install -y openssl
+    - mkdir -p certs env_files
+    - touch env_files/.env env_files/.env.db env_files/.env.email env_files/.env.tasks env_files/.env.cookies
+    - openssl genrsa -out certs/jwt-private.pem 2048
+    - openssl rsa -in certs/jwt-private.pem -outform PEM -pubout -out certs/jwt-public.pem
+    - cat "$DOCKER_ENV_FILE_MAIN" > .env
+    - cat "$ENV_FILE_MAIN" > env_files/.env
+    - cat "$ENV_FILE_COOKIES_MAIN" > env_files/.env.сookies
+    - cat "$ENV_FILE_DB_MAIN" > env_files/.env.db
+    - cat "$ENV_FILE_EMAIL_MAIN" > env_files/.env.email
+    - cat "$ENV_FILE_TASKS_MAIN" > env_files/.env.tasks
+  artifacts:
+    paths:
+      - certs/
+      - env_files/
+      - .env
+  tags:
+    - backend
+  only:
     - main
 
 

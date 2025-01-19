@@ -5,7 +5,7 @@ services:
     env_file:
       - ${PWD}/env_files/.env.db
     ports:
-      - "5432:5432"
+      - ${DB_PORT}:${DB_PORT}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -13,19 +13,19 @@ services:
     image: redis:latest
     restart: always
     ports:
-      - "6379:6379"
+      - ${REDIS_PORT}:${REDIS_PORT}
 
   rabbitmq:
     image: rabbitmq:latest
     restart: always
     ports:
-      - "5672:5672"
+      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
 
   rabbitmq-managment:
     image: rabbitmq:4.0-management
     restart: always
     ports:
-      - "15672:15672"
+      - ${RABBITMQ_MANAGMENT_PORT}:${RABBITMQ_MANAGMENT_PORT}
 
   backend:
       image: ${IMAGE_NAME}
@@ -42,7 +42,7 @@ services:
         - ${PWD}/env_files/.env.email
         - ${PWD}/env_files/.env.tasks
       ports:
-        - "8000:8000"
+        - ${BACKEND_PORT}:${BACKEND_PORT}
       depends_on:
         - db
         - redis

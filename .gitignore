@@ -9,3 +9,4 @@ env_files/
 
 dump.rdb
 erl_crash.dump
+dev/.env
