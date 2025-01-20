@@ -35,7 +35,7 @@ async def verification_code(
     is_new_account: bool = False,
 ) -> JSONResponse:
     verification_code_redis_key = (
-        f"{email_settings.verification_code_name}:{user_data.email}"
+        f"{email_settings.verification_code_key}:{user_data.email}"
     )
     if await redis_pool.get(verification_code_redis_key):
         logger.warning(
@@ -78,24 +78,26 @@ async def reset_password(
     user_data: EmailSchema,
     redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
-    reset_password_redis_key = f"{email_settings.reset_password_name}:{user_data.email}"
-    if await redis_pool.get(reset_password_redis_key):
-        logger.warning(
-            "Too many requests ('/v1/email/reset-password'), email: %s", user_data.email
-        )
-        raise too_many_email_requests_exception
     user = await select_user(session=session, email=user_data.email)
 
     if not user:
         logger.warning("Incorrect password, email: %s", user_data.email)
         raise user_not_found_exception
     email_reset_password_key = generate_password()
+    reset_password_redis_key = (
+        f"{email_settings.reset_password_key}:{email_reset_password_key}"
+    )
+    if await redis_pool.get(reset_password_redis_key):
+        logger.warning(
+            "Too many requests ('/v1/email/reset-password'), email: %s", user_data.email
+        )
+        raise too_many_email_requests_exception
     send_email_reset_password.delay(
         receiver_email=str(user_data.email), key=email_reset_password_key
     )
     await redis_pool.set(
         reset_password_redis_key,
-        email_reset_password_key,
+        str(user_data.email),
         ex=email_settings.expire_time,
     )
     logger.info(

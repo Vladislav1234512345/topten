@@ -1,5 +1,4 @@
 from fastapi import HTTPException
-from pydantic import EmailStr
 from sqlalchemy import select
 
 from src.schemas import UserSchema, UserPasswordSchema
@@ -67,7 +66,7 @@ async def select_user(  # type: ignore
 
 
 async def update_user_with_email(  # type: ignore
-    session: AsyncSessionDep, user_email: EmailStr, show_user: bool = False, **attrs
+    session: AsyncSessionDep, user_email: str, show_user: bool = False, **attrs
 ) -> UserSchema | None:
     user = await select_user_instance(session=session, email=user_email)
     if not user:

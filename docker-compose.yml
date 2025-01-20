@@ -12,18 +12,29 @@ services:
   redis:
     image: redis:latest
     restart: always
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
 
   rabbitmq:
     image: rabbitmq:latest
     restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_DEFAULT_VHOST=/
     ports:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
 
   rabbitmq-managment:
     image: rabbitmq:4.0-management
     restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_DEFAULT_VHOST=/
     ports:
       - ${RABBITMQ_MANAGMENT_PORT}:${RABBITMQ_MANAGMENT_PORT}
 

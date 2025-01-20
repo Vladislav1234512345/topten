@@ -52,8 +52,11 @@ class DatabaseSettings(BaseSettings):
 class TasksSettings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
+    REDIS_PASSWORD: str
     RABBITMQ_HOST: str
     RABBITMQ_PORT: int
+    RABBITMQ_DEFAULT_USER: str
+    RABBITMQ_DEFAULT_PASS: str
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / "env_files/.env.tasks",

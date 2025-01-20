@@ -13,7 +13,7 @@ from src.models import UserModel
 from src.v1.email.schemas import (
     EmailPasswordFirstNameVerificationCodeSchema,
     EmailPasswordVerificationCodeSchema,
-    EmailTwoPasswordsSchema,
+    TwoPasswordsSchema,
 )
 from src.exceptions import (
     invalid_email_code_exception,
@@ -43,9 +43,9 @@ async def signup(
     redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
     verification_code_redis_key = (
-        f"{email_settings.verification_code_name}:{user_data.email}"
+        f"{email_settings.verification_code_key}:{user_data.email}"
     )
-    stored_code: str = await redis_pool.get(verification_code_redis_key)
+    stored_code = await redis_pool.get(verification_code_redis_key)
     if stored_code != user_data.email_code:
         logger.warning(
             "Incorrect verification code, email: %s, expected code: %s, received code: %s",
@@ -76,7 +76,7 @@ async def login(
     redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
     verification_code_redis_key = (
-        f"{email_settings.verification_code_name}:{user_data.email}"
+        f"{email_settings.verification_code_key}:{user_data.email}"
     )
     user = await select_user(session=session, get_password=True, email=user_data.email)
 
@@ -88,7 +88,7 @@ async def login(
     ):
         logger.warning("Incorrect password, email: %s", user_data.email)
         raise invalid_password_exception
-    stored_code: str = await redis_pool.get(verification_code_redis_key)
+    stored_code = await redis_pool.get(verification_code_redis_key)
     if stored_code != user_data.email_code:
         logger.warning(
             "Incorrect verification code, email: %s, expected code: %s, received code: %s",
@@ -107,25 +107,25 @@ async def login(
 async def reset_password(
     key: str,
     session: AsyncSessionDep,
-    user_data: EmailTwoPasswordsSchema,
+    user_data: TwoPasswordsSchema,
     redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
-    reset_password_redis_key = f"{email_settings.reset_password_name}:{user_data.email}"
-    stored_reset_password_key: str = await redis_pool.get(reset_password_redis_key)
-    if key != stored_reset_password_key:
-        logger.warning("Incorrect reset password key, email: %s", user_data.email)
+    reset_password_redis_key = f"{email_settings.reset_password_key}:{key}"
+    user_email_from_redis_pool = await redis_pool.get(reset_password_redis_key)
+    if user_email_from_redis_pool is None:
+        logger.warning("Incorrect reset password key.")
         raise invalid_reset_password_key_exception
-
     await update_user_with_email(
         session=session,
-        user_email=user_data.email,
+        user_email=user_email_from_redis_pool,
         show_user=False,
         password=hash_password(password=user_data.password),
     )
 
     await redis_pool.delete(reset_password_redis_key)
     logger.info(
-        f"User have successfully updated the password, email: %s", user_data.email
+        f"User have successfully updated the password, email: %s",
+        user_email_from_redis_pool,
     )
     return reset_password_response
 

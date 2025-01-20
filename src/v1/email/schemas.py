@@ -30,7 +30,7 @@ class VerificationCodeSchema(BaseModel):
         return value
 
 
-class EmailPasswordSchema(EmailSchema):
+class PasswordSchema(BaseModel):
     password: str
 
     @field_validator("password", mode="after")
@@ -45,7 +45,11 @@ class EmailPasswordSchema(EmailSchema):
         return value
 
 
-class EmailTwoPasswordsSchema(EmailPasswordSchema):
+class EmailPasswordSchema(EmailSchema, PasswordSchema):
+    pass
+
+
+class TwoPasswordsSchema(PasswordSchema):
     password_reset: str
 
     @field_validator("password_reset", mode="after")

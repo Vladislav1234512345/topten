@@ -97,6 +97,27 @@ pip3 install -r base.txt
 ***
 
 **Step-4:**
+*First of all, find redis.conf file*
+*Set redis password:*
+```shell
+requirepass YOUR_PASSWORD
+```
+
+***
+
+**Step-5:**
+*Create new rabbitmq user or log in:*
+```shell
+rabbitmqctl add_user <username> <password>
+```
+*Set permissions for the new user:*
+```shell
+rabbitmqctl set_permissions -p / ErawalksRabbitmq ".*" ".*" ".*" 
+```
+
+***
+
+**Step-6:**
 
 *Windows:*
 ```shell
@@ -112,7 +133,7 @@ redis-server --bind localhost --port 6379
 
 ***
 
-**Step-5:**
+**Step-7:**
 
 *Windows:*
 ```shell
@@ -128,7 +149,7 @@ rabbitmq-server --bind localhost --port 5672
 
 ***
 
-**Step-6:**
+**Step-8:**
 ```shell
 # Run the celery worker
 celery -A src.worker worker --loglevel=INFO --pool=solo
@@ -136,7 +157,7 @@ celery -A src.worker worker --loglevel=INFO --pool=solo
 
 ***
 
-**Step-7:**
+**Step-9:**
 ```shell
 # Run the project
 python main.py

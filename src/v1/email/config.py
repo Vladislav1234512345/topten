@@ -12,8 +12,8 @@ class EmailSettings(BaseSettings):
     SMTP_PORT: int
 
     expire_time: timedelta = timedelta(minutes=30)
-    verification_code_name: str = "code"
-    reset_password_name: str = "password"
+    verification_code_key: str = "email_verification_code"
+    reset_password_key: str = "email_reset_password"
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / "env_files/.env.email",
