@@ -19,5 +19,8 @@ router = APIRouter()
 def refresh(
     user: UserSchema = Depends(get_current_user_with_refresh_token),
 ) -> JSONResponse:
-    logger.info(f"User tokens have been successfully updated, email: %s", user.email)
+    logger.info(
+        f"User tokens have been successfully updated, phone number: %s",
+        user.phone_number,
+    )
     return set_tokens_in_response(response=tokens_refresh_response, user=user)

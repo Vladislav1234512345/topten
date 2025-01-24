@@ -24,7 +24,7 @@ from src.utils import select_user
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
-from ...models import UserRole
+from src.models import UserRole
 
 logger = logging.getLogger(__name__)
 configure_logging(level=logging_settings.logging_level)
@@ -84,7 +84,7 @@ def validate_token_type(payload: dict[str, Any], token_type: str) -> bool:
 
 
 def validate_token_admin(payload: dict[str, Any]) -> bool:
-    is_user_admin = int(payload.get("role")) >= UserRole.admin
+    is_user_admin = int(payload.get("role")) >= UserRole.admin.value
     if not is_user_admin:
         logger.warning("User is not admin.")
         raise user_is_not_admin_exception
@@ -92,7 +92,7 @@ def validate_token_admin(payload: dict[str, Any]) -> bool:
 
 
 def validate_token_stuff(payload: dict[str, Any]) -> bool:
-    is_user_stuff = int(payload.get("role")) >= UserRole.stuff
+    is_user_stuff = int(payload.get("role")) >= UserRole.stuff.value
     if not is_user_stuff:
         logger.warning("User is not stuff.")
         raise user_is_not_stuff_exception

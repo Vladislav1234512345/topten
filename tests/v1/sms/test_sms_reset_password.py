@@ -16,7 +16,7 @@ async def test_sms_reset_password(client, get_sms_user):
     user = await get_sms_user
     reset_password_json_data = {"phone_number": user.phone_number}
     response = client.post(
-        "/sms/reset-password", data={json.dumps(reset_password_json_data)}
+        "/sms/reset-password", content=json.dumps(reset_password_json_data)
     )
     assert response.status_code == reset_password_sms_response.status_code
     assert response.json() == json.loads(reset_password_sms_response.body)

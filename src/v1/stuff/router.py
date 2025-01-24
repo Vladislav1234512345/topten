@@ -17,7 +17,7 @@ async def protected(
     user: UserSchema = Depends(get_current_stuff_user_with_access_token),
 ) -> UserSchema:
     logger.info(
-        f"User successfully visited the protected page just for stuff, email: %s",
-        user.email,
+        f"User successfully visited the protected page just for stuff, phone number: %s",
+        user.phone_number,
     )
     return user

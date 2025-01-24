@@ -18,6 +18,6 @@ async def protected(
 ) -> UserSchema:
     logger.info(
         f"User have successfully visited the protected page just for admins, email: %s",
-        user.email,
+        user.phone_number,
     )
     return user

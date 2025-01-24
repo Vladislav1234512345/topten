@@ -35,8 +35,8 @@ def create_access_token(user: UserSchema) -> str:
     jwt_payload_access_token = {
         "type": jwt_settings.jwt_access_token_type,
         "uid": user.id,
-        "sub": user.email,
-        "role": user.role,
+        "sub": user.phone_number,
+        "role": user.role.value,
     }
 
     access_token = encode_jwt(
@@ -51,8 +51,8 @@ def create_refresh_token(user: UserSchema) -> str:
     jwt_payload_refresh_token = {
         "type": jwt_settings.jwt_refresh_token_type,
         "uid": user.id,
-        "sub": user.email,
-        "role": user.role,
+        "sub": user.phone_number,
+        "role": user.role.value,
     }
 
     refresh_token = encode_jwt(

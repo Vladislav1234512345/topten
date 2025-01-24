@@ -57,7 +57,7 @@ async def create_access_token_auth() -> str:
         "type": jwt_settings.jwt_access_token_type,
         "uid": auth_user.id,
         "sub": auth_user.phone_number,
-        "role": auth_user.role,
+        "role": auth_user.role.value,
     }
 
     access_token = encode_jwt(

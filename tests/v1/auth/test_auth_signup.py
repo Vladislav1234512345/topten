@@ -24,8 +24,8 @@ async def test_auth_signup(client, get_auth_user):
         f"{sms_settings.verification_code_key}:{user.phone_number}"
     )
     sms_code = generate_verification_code()
-    redis_pool = await from_url(  # type: ignore
-        f"redis://{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
+    redis_pool = await from_url(
+        f"redis://:{tasks_settings.REDIS_PASSWORD}@{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
         decode_responses=True,
     )
     await redis_pool.set(
@@ -35,7 +35,7 @@ async def test_auth_signup(client, get_auth_user):
         "sms_code": sms_code,
         "phone_number": user.phone_number,
         "password": user.password,
-        "first_name": user.first_name,
+        "first_name": "Vladislav",
     }
     response = client.post("/auth/signup", content=json.dumps(signup_json_data))
     redis_pool.aclose()

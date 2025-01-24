@@ -23,8 +23,8 @@ async def test_auth_reset_password(client, get_auth_user):
     user = await get_auth_user
     sms_reset_password = generate_password()
     reset_password_redis_key = f"{sms_settings.reset_password_key}:{sms_reset_password}"
-    redis_pool = await from_url(  # type: ignore
-        f"redis://{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
+    redis_pool = await from_url(
+        f"redis://:{tasks_settings.REDIS_PASSWORD}@{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
         decode_responses=True,
     )
     await redis_pool.set(

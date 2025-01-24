@@ -105,14 +105,15 @@ async def create_profile(
         await session.commit()
     except Exception:
         logger.warning(
-            "Current profile has been existed yet, phone number: %s",
-            profile.user.phone_number,
+            "Current profile has been existed yet, first name: %s",
+            profile.first_name,
         )
         raise exception
     await session.refresh(profile)
     logger.info(
-        "Profile has been successfully created, id: %s, phone number: %s",
+        "Profile has been successfully created, id: %s, user_id: %s, first name: %s",
         profile.id,
-        profile.user.phone_number,
+        profile.user_id,
+        profile.first_name,
     )
     return ProfileSchema.model_validate(profile, from_attributes=True)

@@ -65,12 +65,13 @@ async def signup(
     )
     profile = await create_profile(
         profile=ProfileModel(
-            user=user,
+            user_id=user.id,
             first_name=user_data.first_name,
         ),
         session=session,
         exception=current_profile_yet_exists_exception,
     )
+    logger.info("profile")
     await redis_pool.delete(verification_code_redis_key)
 
     logger.info(

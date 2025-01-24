@@ -54,8 +54,7 @@ async def create_db_and_tables_and_user_admin() -> True:
             user=UserModel(
                 phone_number=admin_user.phone_number,
                 password=hash_password(password=admin_user.password),
-                is_admin=admin_user.is_admin,
-                is_stuff=admin_user.is_stuff,
+                role=admin_user.role,
             ),
             session=session,
             exception=current_user_yet_exists_exception,
@@ -72,7 +71,7 @@ async def create_access_token_admin() -> str:
         "type": jwt_settings.jwt_access_token_type,
         "uid": admin_user.id,
         "sub": admin_user.phone_number,
-        "role": admin_user.role,
+        "role": admin_user.role.value,
     }
 
     access_token = encode_jwt(

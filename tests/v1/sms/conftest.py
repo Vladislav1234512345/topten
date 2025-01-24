@@ -53,8 +53,7 @@ async def create_db_and_tables_and_user_phone_number() -> True:
             user=UserModel(
                 phone_number=sms_user.phone_number,
                 password=hash_password(password=sms_user.password),
-                is_admin=sms_user.is_admin,
-                is_stuff=sms_user.is_stuff,
+                role=sms_user.role,
             ),
             session=session,
             exception=current_user_yet_exists_exception,

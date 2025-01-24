@@ -54,8 +54,7 @@ async def create_db_and_tables_and_user_jwt() -> True:
             user=UserModel(
                 phone_number=jwt_user.phone_number,
                 password=hash_password(password=jwt_user.password),
-                is_admin=jwt_user.is_admin,
-                is_stuff=jwt_user.is_stuff,
+                role=jwt_user.role,
             ),
             session=session,
             exception=current_user_yet_exists_exception,
@@ -72,7 +71,7 @@ async def create_refresh_token_jwt() -> str:
         "type": jwt_settings.jwt_refresh_token_type,
         "uid": jwt_user.id,
         "sub": jwt_user.phone_number,
-        "role": jwt_user.role,
+        "role": jwt_user.role.value,
     }
     refresh_token = encode_jwt(
         payload=jwt_payload_refresh_token,

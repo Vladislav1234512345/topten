@@ -25,8 +25,8 @@ async def test_auth_login(client, get_auth_user):
         f"{sms_settings.verification_code_key}:{user.phone_number}"
     )
     sms_code = generate_verification_code()
-    redis_pool = await from_url(  # type: ignore
-        f"redis://{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
+    redis_pool = await from_url(
+        f"redis://:{tasks_settings.REDIS_PASSWORD}@{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
         decode_responses=True,
     )
     await redis_pool.set(
