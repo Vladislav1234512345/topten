@@ -8,7 +8,9 @@ configure_logging(level=logging_settings.logging_level)
 
 
 @pytest.mark.asyncio
-async def test_stuff_environment_setup(client, create_db_and_tables_and_user_email):
-    all_setup_created = await create_db_and_tables_and_user_email
+async def test_stuff_environment_setup(
+    client, create_db_and_tables_and_user_phone_number
+):
+    all_setup_created = await create_db_and_tables_and_user_phone_number
     assert all_setup_created == True
     logger.info("Tested setting up environment for stuff.")

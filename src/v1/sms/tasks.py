@@ -1,10 +1,12 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 from src.config import logging_settings, web_settings
 from src.container import configure_logging
-from src.v1.sms.config import sms_settings
+from src.v1.email.config import email_settings
 from src.worker import app
 import logging
-import httpx
-import json
 
 
 logger = logging.getLogger(__name__)
@@ -51,30 +53,31 @@ def send_sms_verification_code(receiver_phone_number: str, code: str) -> None:
 
 @app.task  # type: ignore
 def send_sms(receiver_phone_number: str, subject: str, body: str) -> bool:
-    with httpx.Client() as client:
-        response = client.post(
-            url=sms_settings.sms_api_url,
-            content=json.dumps(
-                {
-                    "apikey": sms_settings.SMS_API_KEY,
-                    "phones": receiver_phone_number,
-                    "mes": body,
-                    "subj": subject,
-                    "mms": True,
-                }
-            ),
-        )
+    msg = MIMEMultipart()
+    msg["From"] = email_settings.EMAIL_NAME
+    msg["To"] = receiver_phone_number
+    msg["Subject"] = subject
+    msg.attach(MIMEText(_text=body, _subtype="plain"))
 
-        if response.is_success:
+    try:
+        with smtplib.SMTP_SSL(
+            host=email_settings.SMTP_HOST, port=email_settings.SMTP_PORT
+        ) as server:
+            server.login(
+                user=email_settings.EMAIL_NAME,
+                password=email_settings.EMAIL_APP_PASSWORD,
+            )  # Log in to your email account
+            text = msg.as_string()
+            server.sendmail(email_settings.EMAIL_NAME, receiver_phone_number, text)
             logger.info(
                 f"SMS was successfully sent to the phone number: %s",
                 receiver_phone_number,
             )
             return True
-        else:
-            logger.error(
-                f"An error occurred when sending the sms to the phone number: %s\nError: %s",
-                receiver_phone_number,
-                response.text,
-            )
-            return False
+    except Exception as e:
+        logger.error(
+            f"An error occurred when sending the sms to the phone number: %s\nError: %s",
+            receiver_phone_number,
+            e,
+        )
+        return False

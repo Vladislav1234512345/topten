@@ -2,17 +2,17 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.testclient import TestClient
 
-from src.database import async_engine, Base, async_session_factory
-from src.models import UserModel
+from src.database import async_engine, BaseModel, async_session_factory
+from src.models import UserModel, UserRole
 from src.utils import create_user
 from src.v1.jwt import router
 from src.v1.auth.exceptions import current_user_yet_exists_exception
-from src.v1.email.schemas import EmailPasswordSchema
 from src.v1.jwt.config import jwt_settings
 from src.v1.jwt.utils import encode_jwt, hash_password
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
+from src.v1.sms.schemas import PhoneNumberPasswordSchema
 
 logger = logging.getLogger(__name__)
 configure_logging(level=logging_settings.logging_level)
@@ -27,26 +27,22 @@ async def create_async_session() -> AsyncSession:
 async def delete_and_create_db_and_tables():
 
     async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(BaseModel.metadata.drop_all)
         logger.info("Dropped all tables from database.")
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(BaseModel.metadata.create_all)
         logger.info("Created all tables in database.")
 
 
-class TestJwtUserSchema(EmailPasswordSchema):
+class TestJwtUserSchema(PhoneNumberPasswordSchema):
     id: int
-    first_name: str
-    is_admin: bool
-    is_stuff: bool
+    role: UserRole
 
 
 jwt_user = TestJwtUserSchema(
     id=1,
-    email="antonkutorov@gmail.com",
+    phone_number="antonkutorov@gmail.com",
     password="Qwerty1234",
-    first_name="Vladislav",
-    is_admin=False,
-    is_stuff=True,
+    role=UserRole.user,
 )
 
 
@@ -56,9 +52,8 @@ async def create_db_and_tables_and_user_jwt() -> True:
     async with async_session_factory() as session:
         user = await create_user(
             user=UserModel(
-                email=jwt_user.email,
+                phone_number=jwt_user.phone_number,
                 password=hash_password(password=jwt_user.password),
-                first_name=jwt_user.first_name,
                 is_admin=jwt_user.is_admin,
                 is_stuff=jwt_user.is_stuff,
             ),
@@ -76,10 +71,8 @@ async def create_refresh_token_jwt() -> str:
     jwt_payload_refresh_token = {
         "type": jwt_settings.jwt_refresh_token_type,
         "uid": jwt_user.id,
-        "sub": jwt_user.email,
-        "name": jwt_user.first_name,
-        "admin": jwt_user.is_admin,
-        "stuff": jwt_user.is_stuff,
+        "sub": jwt_user.phone_number,
+        "role": jwt_user.role,
     }
     refresh_token = encode_jwt(
         payload=jwt_payload_refresh_token,

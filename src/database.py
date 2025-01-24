@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 configure_logging(level=logging_settings.logging_level)
 
 
-intpk = Annotated[int, mapped_column(primary_key=True)]
+intpk = Annotated[int, mapped_column(primary_key=True, nullable=False)]
 str_256 = Annotated[str, 256]
 created_at = Annotated[
     datetime.datetime, mapped_column(server_default=text("TIMEZONE('UTC', now())"))
@@ -29,7 +29,7 @@ updated_at = Annotated[
 ]
 
 
-class Base(DeclarativeBase):
+class BaseModel(DeclarativeBase):
     type_annotation_map = {str_256: String(length=256)}
 
     columns_count = 4
@@ -56,7 +56,7 @@ async_session_factory = async_sessionmaker(
 
 async def create_db_and_tables() -> None:
     async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(BaseModel.metadata.create_all)
         logger.info("Created all metadata in database.")
 
 
