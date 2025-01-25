@@ -37,3 +37,9 @@ class ProfileSchema(ProfileBaseSchema):
     birth_date: datetime.date | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+
+class ProfileUpdateSchema(BaseModel):
+    biography: str | None = None
+    gender: GenderEnum | None = None
+    birth_date: datetime.date | None = None

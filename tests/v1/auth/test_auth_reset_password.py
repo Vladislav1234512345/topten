@@ -40,6 +40,7 @@ async def test_auth_reset_password(client, get_auth_user):
         f"/auth/reset-password/{sms_reset_password}",
         content=json.dumps(reset_password_json_data),
     )
+    logger.info(response.json())
     assert response.status_code == reset_password_response.status_code
     assert response.json() == json.loads(reset_password_response.body)
     logger.info("/v1/auth/reset-password was tested successfully.")

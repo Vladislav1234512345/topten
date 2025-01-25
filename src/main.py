@@ -1,6 +1,9 @@
 import sys
 import os
 
+from starlette.staticfiles import StaticFiles
+
+from src.container import BASE_DIR
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
@@ -25,6 +28,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(router=v1_router)
+
+if not os.path.exists(BASE_DIR / "media"):
+    os.mkdir(BASE_DIR / "media")
+
+app.mount(path="/media", app=StaticFiles(directory=BASE_DIR / "media"), name="media")
 
 cors_allowed_origins: list[str] = web_settings.CORS_ALLOWED_ORIGINS.split(";")
 

@@ -39,6 +39,7 @@ async def test_auth_login(client, get_auth_user):
     }
     response = client.post("/auth/login", content=json.dumps(login_json_data))
     redis_pool.aclose()
+    logger.info(response.json())
     assert response.status_code == login_response.status_code
     assert response.json() == json.loads(login_response.body)
     logger.info("/v1/auth/login was tested successfully.")

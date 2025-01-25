@@ -1,10 +1,16 @@
 from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 
 from src.schemas import UserSchema, UserPasswordSchema, ProfileSchema
 from src.database import AsyncSessionDep
 from src.models import UserModel, ProfileModel
-from src.exceptions import user_not_found_exception, reset_user_password_exception
+from src.exceptions import (
+    user_not_found_exception,
+    reset_user_password_exception,
+    profile_not_found_exception,
+    update_profile_exception,
+)
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
@@ -26,7 +32,7 @@ async def create_user(
         raise exception
     await session.refresh(user)
     logger.info(
-        "User has been successfully created, id: %s, phone number: %s",
+        "User has been successfully created, user_id: %s, phone number: %s",
         user.id,
         user.phone_number,
     )
@@ -55,14 +61,14 @@ async def select_user(  # type: ignore
 
     if get_password:
         logger.info(
-            "User has been successfully selected with password, id: %s, phone number: %s",
+            "User has been successfully selected with password, user_id: %s, phone number: %s",
             user.id,
             user.phone_number,
         )
         return UserPasswordSchema.model_validate(user, from_attributes=True)
     else:
         logger.info(
-            "User has been successfully selected, id: %s, phone number: %s",
+            "User has been successfully selected, user_id: %s, phone number: %s",
             user.id,
             user.phone_number,
         )
@@ -111,9 +117,63 @@ async def create_profile(
         raise exception
     await session.refresh(profile)
     logger.info(
-        "Profile has been successfully created, id: %s, user_id: %s, first name: %s",
+        "Profile has been successfully created, profile_id: %s, user_id: %s, first name: %s",
         profile.id,
         profile.user_id,
         profile.first_name,
     )
+    return ProfileSchema.model_validate(profile, from_attributes=True)
+
+
+async def select_profile_instance(session: AsyncSessionDep, **filters) -> ProfileModel | None:  # type: ignore
+    statement = (
+        select(ProfileModel).options(joinedload(ProfileModel.user)).filter_by(**filters)
+    )
+    try:
+        result = await session.execute(statement)
+        profile = result.scalar()
+    except:
+        logger.warning("Profile not found, params: %s", filters)
+        raise profile_not_found_exception
+
+    return profile
+
+
+async def select_profile(  # type: ignore
+    session: AsyncSessionDep, **filters
+) -> ProfileSchema | None:
+    profile = await select_profile_instance(session=session, **filters)
+
+    if not profile:
+        raise profile_not_found_exception
+
+    logger.info(
+        "Profile has been successfully selected, profile_id: %s, user_id: %s, phone number: %s",
+        profile.id,
+        profile.user_id,
+        profile.user.phone_number,
+    )
+    return ProfileSchema.model_validate(profile, from_attributes=True)
+
+
+async def update_profile_with_id(  # type: ignore
+    session: AsyncSessionDep, profile_id: int, **attrs
+) -> ProfileSchema | None:
+    profile = await select_profile_instance(session=session, id=profile_id)
+    if not profile:
+        logger.warning("Profile not found, profile_id: %s", profile_id)
+        raise profile_not_found_exception
+
+    for key, value in attrs.items():
+        if hasattr(profile, key):
+            setattr(profile, key, value)
+
+    try:
+        await session.commit()
+    except Exception:
+        logger.error("Failed to update the profile, profile_id: %s", profile_id)
+        raise update_profile_exception
+
+    await session.refresh(profile)
+
     return ProfileSchema.model_validate(profile, from_attributes=True)
