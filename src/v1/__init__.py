@@ -6,7 +6,7 @@ from .email import router as email_router
 from .auth import router as auth_router
 from .admin import router as admin_router
 from .stuff import router as stuff_router
-from .profile import router as profile_router
+from .profiles import router as profile_router
 from fastapi import APIRouter
 
 

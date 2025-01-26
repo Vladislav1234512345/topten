@@ -16,8 +16,8 @@ configure_logging(level=logging_settings.logging_level)
 async def test_jwt_refresh(client, create_access_token_jwt):
     access_token = await create_access_token_jwt
     client.headers.update({"Authorization": access_token})
-    response = client.get("/profile/me")
+    response = client.get("/profiles/me")
     logger.info(response.json())
     assert response.status_code == status.HTTP_200_OK
     assert response.json()
-    logger.info("/v1/profile/me was tested successfully.")
+    logger.info("/v1/profiles/me was tested successfully.")

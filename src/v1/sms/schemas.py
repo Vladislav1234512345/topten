@@ -35,7 +35,7 @@ class PasswordSchema(BaseModel):
 
     @field_validator("password", mode="after")
     @classmethod
-    def validate_password(cls, value) -> str:
+    def validate_password(cls, value: str) -> str:
         if len(value) < 8:
             raise password_min_length_exception
         if not any(char.isdigit() for char in value):

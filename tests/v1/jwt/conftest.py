@@ -4,7 +4,7 @@ from starlette.testclient import TestClient
 
 from src.database import async_engine, BaseModel, async_session_factory
 from src.models import UserModel, UserRole
-from src.utils import create_user
+from src.v1.users.utils import create_user
 from src.v1.jwt import router
 from src.v1.auth.exceptions import current_user_yet_exists_exception
 from src.v1.jwt.config import jwt_settings

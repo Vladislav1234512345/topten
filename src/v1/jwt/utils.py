@@ -2,7 +2,7 @@ import bcrypt
 import jwt
 from src.v1.jwt.config import jwt_settings, cookies_settings
 from datetime import timedelta, datetime, UTC
-from src.schemas import UserSchema
+from src.v1.users.schemas import UserSchema
 from starlette.responses import JSONResponse
 from typing import Any
 
@@ -28,7 +28,7 @@ def decode_jwt(
     algorithm: str = jwt_settings.algorithm,
 ) -> dict[str, Any]:
     decoded_jwt = jwt.decode(jwt=token, key=public_key, algorithms=[algorithm])
-    return decoded_jwt
+    return decoded_jwt  # type: ignore
 
 
 def create_access_token(user: UserSchema) -> str:

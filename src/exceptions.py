@@ -1,4 +1,3 @@
-from fastapi import HTTPException
 from starlette import status
 from starlette.exceptions import HTTPException
 
@@ -8,16 +7,6 @@ invalid_password_exception = HTTPException(
 )
 unauthorized_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED, detail="Неудалось авторизоваться!"
-)
-user_not_found_exception = HTTPException(
-    status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден!"
-)
-profile_not_found_exception = HTTPException(
-    status_code=status.HTTP_404_NOT_FOUND, detail="Профиль не найден!"
-)
-update_profile_exception = HTTPException(
-    status_code=status.HTTP_400_BAD_REQUEST,
-    detail="Не удалось обновить профиль пользователя!",
 )
 invalid_email_code_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный код подтверждения!"

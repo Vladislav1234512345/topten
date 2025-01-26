@@ -9,12 +9,12 @@ from .utils import generate_verification_code, generate_password
 from .config import email_settings
 from src.exceptions import (
     invalid_password_exception,
-    user_not_found_exception,
     too_many_email_requests_exception,
 )
+from ..users.exceptions import user_not_found_exception
 from src.v1.jwt.utils import validate_password
 from src.v1.email.tasks import send_email_reset_password, send_email_verification_code
-from src.utils import select_user
+from ..users.utils import select_user
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
@@ -28,7 +28,7 @@ router = APIRouter()
 
 
 @router.post("/verification-code")
-async def verification_code(
+async def verification_code_view(
     session: AsyncSessionDep,
     user_data: EmailPasswordSchema,
     redis_pool: Redis = Depends(get_redis_pool),
@@ -43,11 +43,13 @@ async def verification_code(
             user_data.email,
         )
         raise too_many_email_requests_exception
-    user = await select_user(session=session, email=user_data.email, get_password=True)
+    user = await select_user(
+        session=session, full_info=False, email=user_data.email, get_password=True
+    )
 
     if user:
         if is_new_account:
-            logger.warning("Current user has been existed yet, email: %s", user.email)
+            logger.warning("Current users has been existed yet, email: %s", user.email)  # type: ignore
             raise current_user_yet_exists_exception
         if not validate_password(
             password=user_data.password, hashed_password=user.password  # type: ignore
@@ -66,19 +68,19 @@ async def verification_code(
         verification_code_redis_key, email_code, ex=email_settings.expire_time
     )
     logger.info(
-        "The verification code email has been successfully sent to user, email: %s",
+        "The verification code email has been successfully sent to users, email: %s",
         user_data.email,
     )
     return verification_code_email_response
 
 
 @router.post("/reset-password")
-async def reset_password(
+async def reset_password_view(
     session: AsyncSessionDep,
     user_data: EmailSchema,
     redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
-    user = await select_user(session=session, email=user_data.email)
+    user = await select_user(session=session, full_info=False, email=user_data.email)
 
     if not user:
         logger.warning("Incorrect password, email: %s", user_data.email)
@@ -101,7 +103,7 @@ async def reset_password(
         ex=email_settings.expire_time,
     )
     logger.info(
-        "The password reset email has been successfully sent to the user, email: %s",
+        "The password reset email has been successfully sent to the users, email: %s",
         user_data.email,
     )
     return reset_password_email_response

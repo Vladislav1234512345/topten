@@ -2,18 +2,18 @@ from fastapi import APIRouter, Depends
 from redis.asyncio import Redis
 from starlette.responses import JSONResponse
 
-from src.utils import select_user, update_user_with_phone_number, create_profile
+from ..profiles.utils import create_profile
 from src.v1.jwt.dependencies import get_current_user_with_access_token
 from src.v1.jwt.utils import hash_password, set_tokens_in_response, validate_password
 from src.database import AsyncSessionDep, get_redis_pool
-from src.utils import create_user
-from src.schemas import UserSchema
+from ..users.utils import create_user, select_user, update_user_with_phone_number
+from ..users.schemas import UserSchema
 from src.models import UserModel, ProfileModel
 from src.exceptions import (
-    user_not_found_exception,
     invalid_password_exception,
     invalid_sms_code_exception,
 )
+from ..users.exceptions import user_not_found_exception
 from src.v1.auth.exceptions import (
     invalid_reset_password_key_exception,
     current_user_yet_exists_exception,
@@ -38,7 +38,7 @@ router = APIRouter()
 
 
 @router.post("/signup")
-async def signup(
+async def signup_view(
     session: AsyncSessionDep,
     user_data: PhoneNumberPasswordFirstNameVerificationCodeSchema,
     redis_pool: Redis = Depends(get_redis_pool),
@@ -71,7 +71,7 @@ async def signup(
         session=session,
         exception=current_profile_yet_exists_exception,
     )
-    logger.info("profile")
+    logger.info("profiles")
     await redis_pool.delete(verification_code_redis_key)
 
     logger.info(
@@ -81,7 +81,7 @@ async def signup(
 
 
 @router.post("/login")
-async def login(
+async def login_view(
     session: AsyncSessionDep,
     user_data: PhoneNumberPasswordVerificationCodeSchema,
     redis_pool: Redis = Depends(get_redis_pool),
@@ -90,7 +90,10 @@ async def login(
         f"{sms_settings.verification_code_key}:{user_data.phone_number}"
     )
     user = await select_user(
-        session=session, get_password=True, phone_number=user_data.phone_number
+        session=session,
+        full_info=False,
+        get_password=True,
+        phone_number=user_data.phone_number,
     )
 
     if not user:
@@ -119,7 +122,7 @@ async def login(
 
 
 @router.post("/reset-password/{key}")
-async def reset_password(
+async def reset_password_view(
     key: str,
     session: AsyncSessionDep,
     user_data: TwoPasswordsSchema,
@@ -146,7 +149,7 @@ async def reset_password(
 
 
 @router.get("/protected", response_model=UserSchema)
-async def protected(
+async def protected_view(
     user: UserSchema = Depends(get_current_user_with_access_token),
 ) -> UserSchema:
     logger.info(

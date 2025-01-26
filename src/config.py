@@ -8,6 +8,7 @@ class WebSettings(BaseSettings):
     WEBAPP_HOST: str
     WEBAPP_PORT: int
     FRONTEND_LINK: str
+    BACKEND_LINK: str
     CORS_ALLOWED_ORIGINS: str
 
     model_config = SettingsConfigDict(

@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
-from src.schemas import UserSchema
-from src.v1.jwt.dependencies import get_current_stuff_user_with_access_token
+from src.v1.users.schemas import UserSchema
+from src.v1.jwt.dependencies import (
+    get_current_stuff_role_and_higher_permission_with_access_token,
+)
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
@@ -13,8 +15,10 @@ router = APIRouter()
 
 
 @router.get("/protected", response_model=UserSchema)
-async def protected(
-    user: UserSchema = Depends(get_current_stuff_user_with_access_token),
+async def protected_view(
+    user: UserSchema = Depends(
+        get_current_stuff_role_and_higher_permission_with_access_token
+    ),
 ) -> UserSchema:
     logger.info(
         f"User successfully visited the protected page just for stuff, phone number: %s",

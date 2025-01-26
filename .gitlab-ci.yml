@@ -103,8 +103,8 @@ merge-feature-to-dev-job:
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
     - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-    - git config --global user.name "Vladislav1234512345"
-    - git config --global user.email "tolerantniy2104@gmail.com"
+    - git config --global users.name "Vladislav1234512345"
+    - git config --global users.email "tolerantniy2104@gmail.com"
   script:
     - git remote set-url origin git@gitlab.com:top10edu/backend.git
     - git fetch origin

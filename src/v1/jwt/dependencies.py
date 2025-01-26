@@ -3,10 +3,10 @@ from starlette import status
 from fastapi.security import OAuth2PasswordBearer
 
 from src.exceptions import (
-    user_not_found_exception,
     user_is_not_admin_exception,
     user_is_not_stuff_exception,
 )
+from ..users.exceptions import user_not_found_exception
 from .exceptions import (
     invalid_access_token_exception,
     invalid_refresh_token_exception,
@@ -16,11 +16,11 @@ from .exceptions import (
 )
 from .utils import decode_jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
-from src.schemas import UserSchema
+from src.v1.users.schemas import UserSchema
 from src.database import AsyncSessionDep
 from typing import Annotated, Any
 from .config import jwt_settings
-from src.utils import select_user
+from ..users.utils import select_user
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
@@ -84,7 +84,7 @@ def validate_token_type(payload: dict[str, Any], token_type: str) -> bool:
 
 
 def validate_token_admin(payload: dict[str, Any]) -> bool:
-    is_user_admin = int(payload.get("role")) >= UserRole.admin.value
+    is_user_admin = int(payload.get("role")) >= UserRole.admin.value  # type: ignore
     if not is_user_admin:
         logger.warning("User is not admin.")
         raise user_is_not_admin_exception
@@ -92,7 +92,7 @@ def validate_token_admin(payload: dict[str, Any]) -> bool:
 
 
 def validate_token_stuff(payload: dict[str, Any]) -> bool:
-    is_user_stuff = int(payload.get("role")) >= UserRole.stuff.value
+    is_user_stuff = int(payload.get("role")) >= UserRole.stuff.value  # type: ignore
     if not is_user_stuff:
         logger.warning("User is not stuff.")
         raise user_is_not_stuff_exception
@@ -110,7 +110,7 @@ async def get_user_by_token_uid(
         logger.warning("User not found by uid in token.")
         raise user_not_found_exception
 
-    user = await select_user(session=session, id=user_id)
+    user = await select_user(session=session, full_info=True, id=user_id)
 
     if not user:
         logger.warning("User not found by uid in token.")
@@ -143,7 +143,7 @@ class UserGetterFromRefreshToken:
         return await get_user_by_token_uid(session=session, payload=payload)
 
 
-class AdminUserGetterFromAccessToken:
+class AdminRoleAndHigherGetterFromAccessToken:
     async def __call__(
         self,
         session: AsyncSessionDep,
@@ -156,7 +156,7 @@ class AdminUserGetterFromAccessToken:
         return await get_user_by_token_uid(session=session, payload=payload)
 
 
-class StuffUserGetterFromAccessToken:
+class StuffRoleAndHigherGetterFromAccessToken:
     async def __call__(
         self,
         session: AsyncSessionDep,
@@ -171,5 +171,9 @@ class StuffUserGetterFromAccessToken:
 
 get_current_user_with_access_token = UserGetterFromAccessToken()
 get_current_user_with_refresh_token = UserGetterFromRefreshToken()
-get_current_admin_user_with_access_token = AdminUserGetterFromAccessToken()
-get_current_stuff_user_with_access_token = StuffUserGetterFromAccessToken()
+get_current_admin_role_and_higher_permission_with_access_token = (
+    AdminRoleAndHigherGetterFromAccessToken()
+)
+get_current_stuff_role_and_higher_permission_with_access_token = (
+    StuffRoleAndHigherGetterFromAccessToken()
+)

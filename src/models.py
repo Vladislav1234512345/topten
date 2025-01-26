@@ -48,17 +48,22 @@ class UserModel(BaseModel):
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
 
-    profile: Mapped["ProfileModel"] = relationship(back_populates="user")
-    break_time: Mapped["UserBreakModel"] = relationship(back_populates="user")
+    profile: Mapped["ProfileModel"] = relationship(back_populates="users")
+    break_time: Mapped["UserBreakModel"] = relationship(back_populates="users")
     vacations_time_intervals: Mapped[List["UserVacationTimeIntervalModel"]] = (
-        relationship(back_populates="user")
+        relationship(back_populates="users")
     )
     vacations_dates: Mapped[List["UserVacationDateModel"]] = relationship(
-        back_populates="user"
+        back_populates="users"
     )
-    cards: Mapped[List["UserCardModel"]] = relationship(back_populates="user")
-    week_days: Mapped[List["UserWeekDayModel"]] = relationship(back_populates="user")
-    applications: Mapped[List["ApplicationModel"]] = relationship(back_populates="user")
+    cards: Mapped[List["UserCardModel"]] = relationship(back_populates="users")
+    week_days: Mapped[List["UserWeekDayModel"]] = relationship(back_populates="users")
+    applications: Mapped[List["ApplicationModel"]] = relationship(
+        back_populates="user_receiver"
+    )
+    sent_reviews: Mapped[List["CardReviewModel"]] = relationship(
+        back_populates="user_sender"
+    )
 
     activities: Mapped[List["ActivityModel"]] = relationship(
         back_populates="users", secondary="users_activities"
@@ -80,7 +85,7 @@ class ProfileModel(BaseModel):
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
 
-    user: Mapped["UserModel"] = relationship(back_populates="profile")
+    user: Mapped["UserModel"] = relationship(back_populates="profiles")
 
 
 class UserBreakModel(BaseModel):
@@ -152,7 +157,7 @@ class UserCardModel(BaseModel):
 
     user: Mapped["UserModel"] = relationship(back_populates="cards")
     activity: Mapped["ActivityModel"] = relationship(back_populates="cards")
-    reviews: Mapped[List["CardReviewModel"]] = relationship(back_populates="card")
+    card_reviews: Mapped[List["CardReviewModel"]] = relationship(back_populates="card")
     services: Mapped[List["UserCardServiceModel"]] = relationship(back_populates="card")
 
 
@@ -186,6 +191,9 @@ class CardReviewModel(BaseModel):
     __tablename__ = "cards_reviews"
 
     id: Mapped[intpk]
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     user_card_id: Mapped[int] = mapped_column(
         ForeignKey("users_cards.id", ondelete="CASCADE"), nullable=False
     )
@@ -196,7 +204,8 @@ class CardReviewModel(BaseModel):
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
 
-    card: Mapped["UserCardModel"] = relationship(back_populates="reviews")
+    user_sender: Mapped["UserModel"] = relationship(back_populates="sent_reviews")
+    card: Mapped["UserCardModel"] = relationship(back_populates="card_reviews")
 
 
 class UserCardServiceModel(BaseModel):
@@ -235,7 +244,7 @@ class ApplicationModel(BaseModel):
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
 
-    user: Mapped["UserModel"] = relationship(back_populates="applications")
+    user_receiver: Mapped["UserModel"] = relationship(back_populates="applications")
     service: Mapped["UserCardServiceModel"] = relationship(
         back_populates="applications"
     )

@@ -11,4 +11,4 @@ configure_logging(level=logging_settings.logging_level)
 async def test_jwt_environment_setup(client, create_db_and_tables_and_user_and_profile):
     all_setup_created = await create_db_and_tables_and_user_and_profile
     assert all_setup_created == True
-    logger.info("Tested setting up environment for profile successfully.")
+    logger.info("Tested setting up environment for profiles successfully.")

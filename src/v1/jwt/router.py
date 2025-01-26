@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from starlette.responses import JSONResponse
 
-from src.schemas import UserSchema
+from ..users.schemas import UserSchema
 from .dependencies import get_current_user_with_refresh_token
 from .utils import set_tokens_in_response
 from .responses import tokens_refresh_response
@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.post("/refresh", response_model=UserSchema)
-def refresh(
+def refresh_tokens_view(
     user: UserSchema = Depends(get_current_user_with_refresh_token),
 ) -> JSONResponse:
     logger.info(

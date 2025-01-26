@@ -69,7 +69,7 @@ AsyncSessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 
 
 async def get_redis_pool() -> AsyncIterator[Redis]:
-    redis = await from_url(
+    redis = await from_url(  # type: ignore
         f"redis://:{tasks_settings.REDIS_PASSWORD}@{tasks_settings.REDIS_HOST}:{tasks_settings.REDIS_PORT}",
         decode_responses=True,
     )

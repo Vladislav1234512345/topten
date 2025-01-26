@@ -9,12 +9,12 @@ from .utils import generate_verification_code, generate_password
 from .config import sms_settings
 from src.exceptions import (
     invalid_password_exception,
-    user_not_found_exception,
     too_many_sms_requests_exception,
 )
+from ..users.exceptions import user_not_found_exception
 from src.v1.jwt.utils import validate_password
 from src.v1.sms.tasks import send_sms_reset_password, send_sms_verification_code
-from src.utils import select_user
+from ..users.utils import select_user
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
@@ -28,7 +28,7 @@ router = APIRouter()
 
 
 @router.post("/verification-code")
-async def verification_code(
+async def verification_code_view(
     session: AsyncSessionDep,
     user_data: PhoneNumberPasswordSchema,
     redis_pool: Redis = Depends(get_redis_pool),
@@ -44,13 +44,17 @@ async def verification_code(
         )
         raise too_many_sms_requests_exception
     user = await select_user(
-        session=session, phone_number=user_data.phone_number, get_password=True
+        session=session,
+        full_info=False,
+        get_password=True,
+        phone_number=user_data.phone_number,
     )
 
     if user:
         if is_new_account:
             logger.warning(
-                "Current user has been existed yet, phone number: %s", user.phone_number
+                "Current users has been existed yet, phone number: %s",
+                user.phone_number,
             )
             raise current_user_yet_exists_exception
         if not validate_password(
@@ -72,19 +76,21 @@ async def verification_code(
         verification_code_redis_key, sms_code, ex=sms_settings.expire_time
     )
     logger.info(
-        "The verification sms-code has been successfully sent to user, phone number: %s",
+        "The verification sms-code has been successfully sent to users, phone number: %s",
         user_data.phone_number,
     )
     return verification_code_sms_response
 
 
 @router.post("/reset-password")
-async def reset_password(
+async def reset_password_view(
     session: AsyncSessionDep,
     user_data: PhoneNumberSchema,
     redis_pool: Redis = Depends(get_redis_pool),
 ) -> JSONResponse:
-    user = await select_user(session=session, phone_number=user_data.phone_number)
+    user = await select_user(
+        session=session, full_info=False, phone_number=user_data.phone_number
+    )
 
     if not user:
         logger.warning("Incorrect password, phone number: %s", user_data.phone_number)
@@ -108,7 +114,7 @@ async def reset_password(
         ex=sms_settings.expire_time,
     )
     logger.info(
-        "The password reset sms has been successfully sent to the user, phone number: %s",
+        "The password reset sms has been successfully sent to the users, phone number: %s",
         user_data.phone_number,
     )
     return reset_password_sms_response
