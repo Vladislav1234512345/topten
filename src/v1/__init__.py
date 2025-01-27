@@ -15,6 +15,7 @@ from .week_days import router as week_day_router
 from .vacations_dates import router as vacation_date_router
 from .vacations_times import router as vacation_time_router
 from .services import router as service_router
+from .applications import router as application_router
 from fastapi import APIRouter
 
 
@@ -35,3 +36,4 @@ router.include_router(router=week_day_router)
 router.include_router(router=vacation_date_router)
 router.include_router(router=vacation_time_router)
 router.include_router(router=service_router)
+router.include_router(router=application_router)
