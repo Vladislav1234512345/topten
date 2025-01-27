@@ -1,10 +1,10 @@
 __all__ = ("router",)
 
 
-from .router import router as user_router
+from .router import router as activity_router
 from fastapi import APIRouter
 
 
-router = APIRouter(prefix="/users", tags=["USERS"])
+router = APIRouter(prefix="/activities", tags=["ACTIVITIES"])
 
-router.include_router(router=user_router)
+router.include_router(router=activity_router)

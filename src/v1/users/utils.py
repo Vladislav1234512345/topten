@@ -60,10 +60,10 @@ async def select_users_instances(session: AsyncSessionDep, select_one_instance: 
             return list(result.scalars().all())
     except:
         if select_one_instance:
-            logger.warning("[DATABASE] User not found, params: %s", filters)
+            logger.warning("[DATABASE] User not found, params: %s", **filters)
             raise user_not_found_exception
         else:
-            logger.warning("[DATABASE] Users not found, params: %s", filters)
+            logger.warning("[DATABASE] Users not found, params: %s", **filters)
             raise users_not_found_exception
 
 

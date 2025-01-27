@@ -71,10 +71,10 @@ async def select_profiles_instances(session: AsyncSessionDep, select_one_instanc
             return list(result.scalars().all())
     except:
         if select_one_instance:
-            logger.warning("[DATABASE] Profile not found, params: %s", filters)
+            logger.warning("[DATABASE] Profile not found, params: %s", **filters)
             raise profile_not_found_exception
         else:
-            logger.warning("[DATABASE] Profiles not found, params: %s", filters)
+            logger.warning("[DATABASE] Profiles not found, params: %s", **filters)
             raise profiles_not_found_exception
 
 

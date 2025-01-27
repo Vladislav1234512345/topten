@@ -64,10 +64,10 @@ async def select_users_cards_instances(session: AsyncSessionDep, select_one_inst
             return list(result.scalars().all())
     except:
         if select_one_instance:
-            logger.warning("[DATABASE] User Card not found, params: %s", filters)
+            logger.warning("[DATABASE] User Card not found, params: %s", **filters)
             raise user_not_found_exception
         else:
-            logger.warning("[DATABASE] Users Cards not found, params: %s", filters)
+            logger.warning("[DATABASE] Users Cards not found, params: %s", **filters)
             raise users_not_found_exception
 
 
@@ -85,42 +85,10 @@ async def select_user_card(  # type: ignore
     else:
         logger.info(
             "[DATABASE] User Card has been successfully selected, user_card_id: %s, user_id: %s, activity_id: %s",
-            user_card.id,  # type: ignore
+            user_card.id,
             user_card.user_id,  # type: ignore
             user_card.activity_id,  # type: ignore
         )
-        return UserCardSchema.model_validate(user_card, from_attributes=True)
-
-
-async def update_user_card_with_id(  # type: ignore
-    session: AsyncSessionDep, user_card_id: int, show_user: bool = False, **attrs
-) -> UserCardSchema:
-    user_card = await select_users_cards_instances(
-        session=session, select_one_instance=True, full_info=False, id=user_card_id
-    )
-    if not user_card:
-        logger.warning("[DATABASE] User Card not found, user_card_id: %s", user_card_id)
-        raise user_card_not_found_exception
-
-    for key, value in attrs.items():
-        if hasattr(user_card, key):
-            setattr(user_card, key, value)
-
-    try:
-        await session.commit()
-    except Exception:
-        logger.error(
-            "[DATABASE] Failed to update the user сard, user_card_id: %s, user_id: %s, activity_id: %s",
-            user_card_id,
-            user_card.user_id,  # type: ignore
-            user_card.activity_id,  # type: ignore
-        )
-        raise update_user_card_exception
-
-    if show_user:
-
-        await session.refresh(user_card)
-
         return UserCardSchema.model_validate(user_card, from_attributes=True)
 
 
@@ -155,7 +123,7 @@ async def update_user_card_with_user_and_activity_ids(  # type: ignore
     except Exception:
         logger.error(
             "[DATABASE] Failed to update the user сard, user_card_id: %s, user_id: %s, activity_id: %s",
-            user_card.id,  # type: ignore
+            user_card.id,
             user_id,
             activity_id,
         )

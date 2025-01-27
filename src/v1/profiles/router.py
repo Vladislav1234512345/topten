@@ -112,7 +112,7 @@ async def create_profile_view(
     session: AsyncSessionDep,
     profile_create_schema: ProfileCreateAndUpdateSchema,
     avatar_image_file: UploadFile | None = None,
-    user: UserSchema = Depends(get_current_user_with_access_token), # type: ignore
+    user: UserSchema = Depends(get_current_user_with_access_token),  # type: ignore
 ) -> JSONResponse:
     profile_create_data = profile_create_schema.model_dump(exclude_none=True)
     if avatar_image_file is not None:

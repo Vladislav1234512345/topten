@@ -57,10 +57,10 @@ async def select_activities_instances(session: AsyncSessionDep, select_one_insta
             return list(result.scalars().all())
     except:
         if select_one_instance:
-            logger.warning("[DATABASE] Activity not found, params: %s", filters)
+            logger.warning("[DATABASE] Activity not found, params: %s", **filters)
             raise activity_not_found_exception
         else:
-            logger.warning("[DATABASE] Activities not found, params: %s", filters)
+            logger.warning("[DATABASE] Activities not found, params: %s", **filters)
             raise activities_not_found_exception
 
 

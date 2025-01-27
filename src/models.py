@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String, Time, Date
+from sqlalchemy import ForeignKey, String, Time, Date, UniqueConstraint
 from sqlalchemy_utils import URLType
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from src.database import intpk, str_256, created_at, updated_at, BaseModel
@@ -50,8 +50,8 @@ class UserModel(BaseModel):
 
     profile: Mapped["ProfileModel"] = relationship(back_populates="users")
     break_time: Mapped["UserBreakModel"] = relationship(back_populates="users")
-    vacations_time_intervals: Mapped[List["UserVacationTimeIntervalModel"]] = (
-        relationship(back_populates="users")
+    vacations_time_intervals: Mapped[List["UserVacationTimeModel"]] = relationship(
+        back_populates="users"
     )
     vacations_dates: Mapped[List["UserVacationDateModel"]] = relationship(
         back_populates="users"
@@ -61,7 +61,7 @@ class UserModel(BaseModel):
     applications: Mapped[List["ApplicationModel"]] = relationship(
         back_populates="user_receiver"
     )
-    sent_reviews: Mapped[List["CardReviewModel"]] = relationship(
+    sent_reviews: Mapped[List["UserCardReviewModel"]] = relationship(
         back_populates="user_sender"
     )
 
@@ -72,6 +72,7 @@ class UserModel(BaseModel):
 
 class ProfileModel(BaseModel):
     __tablename__ = "profiles"
+    __table_args__ = UniqueConstraint("user_id", name="unique_user_id")
 
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(
@@ -90,6 +91,7 @@ class ProfileModel(BaseModel):
 
 class UserBreakModel(BaseModel):
     __tablename__ = "users_breaks"
+    __table_args__ = UniqueConstraint("user_id", name="unique_user_id")
 
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(
@@ -102,8 +104,22 @@ class UserBreakModel(BaseModel):
     user: Mapped["UserModel"] = relationship(back_populates="break_time")
 
 
-class UserVacationTimeIntervalModel(BaseModel):
-    __tablename__ = "users_vacations_time_intervals"
+class UserVacationTimeModel(BaseModel):
+    __tablename__ = "users_vacations_times"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "vacation_date",
+            "start_vacation_time",
+            name="unique_user_start_vacation_time_with_date",
+        ),
+        UniqueConstraint(
+            "user_id",
+            "vacation_date",
+            "finish_vacation_time",
+            name="unique_user_finish_vacation_time_with_date",
+        ),
+    )
 
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(
@@ -121,6 +137,14 @@ class UserVacationTimeIntervalModel(BaseModel):
 
 class UserVacationDateModel(BaseModel):
     __tablename__ = "users_vacations_dates"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id", "start_vacation_date", name="unique_user_start_vacation_date"
+        ),
+        UniqueConstraint(
+            "user_id", "finish_vacation_date", name="unique_user_finish_vacation_date"
+        ),
+    )
 
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(
@@ -140,6 +164,9 @@ class UserVacationDateModel(BaseModel):
 
 class UserCardModel(BaseModel):
     __tablename__ = "users_cards"
+    __table_args__ = (
+        UniqueConstraint("user_id", "activity_id", name="unique_user_activity"),
+    )
 
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(
@@ -157,7 +184,9 @@ class UserCardModel(BaseModel):
 
     user: Mapped["UserModel"] = relationship(back_populates="cards")
     activity: Mapped["ActivityModel"] = relationship(back_populates="cards")
-    card_reviews: Mapped[List["CardReviewModel"]] = relationship(back_populates="card")
+    card_reviews: Mapped[List["UserCardReviewModel"]] = relationship(
+        back_populates="card"
+    )
     services: Mapped[List["UserCardServiceModel"]] = relationship(back_populates="card")
 
 
@@ -174,21 +203,8 @@ class ActivityModel(BaseModel):
     )
 
 
-class UserActivityModel(BaseModel):
-    __tablename__ = "users_activities"
-
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, nullable=False
-    )
-    activity_id: Mapped[int] = mapped_column(
-        ForeignKey("activities.id", ondelete="CASCADE"),
-        primary_key=True,
-        nullable=False,
-    )
-
-
-class CardReviewModel(BaseModel):
-    __tablename__ = "cards_reviews"
+class UserCardReviewModel(BaseModel):
+    __tablename__ = "users_cards_reviews"
 
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(
@@ -258,8 +274,11 @@ class UserWeekDayModel(BaseModel):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     week_day: Mapped[WeekDayEnum] = mapped_column(nullable=False)
-    is_work_day: Mapped[bool] = mapped_column(nullable=False)
-    start_work_time: Mapped[datetime.time] = mapped_column(Time, nullable=False)
-    finish_work_time: Mapped[datetime.time] = mapped_column(Time, nullable=False)
+    start_work_time: Mapped[datetime.time] = mapped_column(
+        Time, nullable=False, default=datetime.time(minute=0)
+    )
+    finish_work_time: Mapped[datetime.time] = mapped_column(
+        Time, nullable=False, default=datetime.time(minute=0)
+    )
 
     user: Mapped["UserModel"] = relationship(back_populates="week_days")
