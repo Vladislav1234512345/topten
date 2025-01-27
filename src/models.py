@@ -42,7 +42,7 @@ class UserModel(BaseModel):
     phone_number: Mapped[str] = mapped_column(
         String(length=50), nullable=False, unique=True
     )
-    password: Mapped[bytes] = mapped_column(nullable=False)
+    password: Mapped[bytes | None] = mapped_column(nullable=True)
     role: Mapped[int] = mapped_column(default=UserRole.user, nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
     created_at: Mapped[created_at]
@@ -79,10 +79,10 @@ class ProfileModel(BaseModel):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     first_name: Mapped[str_256] = mapped_column(nullable=False)
-    avatar: Mapped[Optional[str]] = mapped_column(URLType, nullable=True)
-    biography: Mapped[Optional[str]] = mapped_column(String(length=500), nullable=True)
-    gender: Mapped[Optional["GenderEnum"]] = mapped_column(nullable=True)
-    birth_date: Mapped[Optional[datetime.date]] = mapped_column(Date, nullable=True)
+    gender: Mapped["GenderEnum"] = mapped_column(nullable=False)
+    birth_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    avatar: Mapped[str | None] = mapped_column(URLType, nullable=True)
+    biography: Mapped[str | None] = mapped_column(String(length=500), nullable=True)
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
 

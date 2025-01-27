@@ -70,6 +70,7 @@ async def select_users_instances(session: AsyncSessionDep, select_one_instance: 
 async def select_user(  # type: ignore
     session: AsyncSessionDep,
     full_info: bool = False,
+    exclude_none: bool = True,
     get_password: bool = False,
     **filters
 ) -> UserPasswordSchema | UserSchema | None:
@@ -79,7 +80,10 @@ async def select_user(  # type: ignore
 
     if not user:
         logger.warning("[DATABASE] User not found, params: %s", **filters)
-        raise user_not_found_exception
+        if exclude_none:
+            raise user_not_found_exception
+        else:
+            return None
 
     if get_password:
         logger.info(
