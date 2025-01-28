@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from starlette.responses import JSONResponse
 
-from ..users.schemas import UserSchema
+from src.schemas import UserSchema
 from .dependencies import get_current_user_with_refresh_token
 from .utils import set_tokens_in_response
 from .responses import tokens_refresh_response

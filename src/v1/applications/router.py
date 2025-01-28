@@ -7,12 +7,12 @@ from starlette.responses import JSONResponse
 from src.config import logging_settings
 from src.database import AsyncSessionDep
 from src.models import ApplicationModel
-from src.v1.applications.schemas import (
-    ApplicationUpdateSchema,
+from src.schemas import (
     ApplicationSchema,
+    UserSchema,
     ApplicationBaseSchema,
+    ApplicationUpdateSchema,
 )
-from src.v1.users.schemas import UserSchema
 from src.v1.applications.utils import (
     create_application,
     delete_application,

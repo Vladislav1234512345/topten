@@ -15,10 +15,6 @@ from src.v1.vacations_times.responses import (
     user_vacation_time_is_created_response,
     user_vacation_time_is_updated_response,
 )
-from src.v1.vacations_times.schemas import (
-    UserVacationTimeSchema,
-    VacationTimeAndDateBaseSchema,
-)
 from src.v1.vacations_times.utils import (
     create_user_vacation_time,
     delete_user_vacation_time,
@@ -26,7 +22,11 @@ from src.v1.vacations_times.utils import (
     select_users_vacations_times,
     select_user_vacation_time,
 )
-from src.v1.users.schemas import UserSchema
+from src.schemas import (
+    UserSchema,
+    VacationTimeAndDateBaseSchema,
+    UserVacationTimeSchema,
+)
 
 from src.v1.jwt.dependencies import get_current_user_with_access_token
 

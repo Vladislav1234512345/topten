@@ -13,7 +13,7 @@ from src.v1.breaks.responses import (
     user_break_is_created_response,
     user_break_is_updated_response,
 )
-from src.v1.breaks.schemas import UserBreakBaseSchema, UserBreakSchema
+from src.schemas import UserBreakSchema, UserSchema, UserBreakBaseSchema
 from src.v1.breaks.utils import (
     create_user_break,
     delete_user_break,
@@ -21,7 +21,6 @@ from src.v1.breaks.utils import (
     select_users_breaks,
     select_user_break,
 )
-from src.v1.users.schemas import UserSchema
 
 from src.v1.jwt.dependencies import (
     get_current_user_with_access_token,

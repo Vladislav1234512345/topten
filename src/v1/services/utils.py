@@ -12,12 +12,11 @@ from src.v1.services.exceptions import (
     delete_user_card_service_forbidden_exception,
     update_user_card_service_forbidden_exception,
 )
-from src.v1.services.schemas import UserCardServiceSchema
+from src.schemas import UserCardServiceSchema, UserSchema
 from src.models import UserCardServiceModel
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
-from src.v1.users.schemas import UserSchema
 
 logger = logging.getLogger(__name__)
 configure_logging(level=logging_settings.logging_level)

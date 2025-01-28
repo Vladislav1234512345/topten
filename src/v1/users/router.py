@@ -7,15 +7,15 @@ from starlette.responses import JSONResponse
 from src.config import logging_settings
 from src.database import AsyncSessionDep
 from src.models import UserModel
-from src.v1.users.schemas import UserSchema, UserCreateAndUpdateSchema
-from src.v1.users.utils import (
+from src.schemas import UserSchema, UserCreateAndUpdateSchema
+from src.utils import (
     create_user,
     select_user,
     update_user_with_id,
     select_users,
     delete_user,
 )
-from src.v1.auth.exceptions import current_user_yet_exists_exception
+from src.exceptions import current_user_yet_exists_exception
 from src.v1.jwt.dependencies import get_current_user_with_access_token
 from src.v1.jwt.utils import hash_password
 

@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from starlette import status
 from starlette.exceptions import HTTPException
 
@@ -52,4 +53,14 @@ password_must_contain_an_uppercase_letter_exception = HTTPException(
 password_min_length_exception = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="Длина пароля должна быть минимум 8 символов!",
+)
+user_not_found_exception = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден!"
+)
+current_user_yet_exists_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Пользователь с такой почтой уже существует!",
+)
+users_not_found_exception = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND, detail="Пользователи не найдены!"
 )

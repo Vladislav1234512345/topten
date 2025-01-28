@@ -11,7 +11,7 @@ from src.v1.profiles.exceptions import (
     update_profile_exception,
 )
 from src.models import ProfileModel
-from src.v1.profiles.schemas import ProfileSchema
+from src.schemas import ProfileSchema
 import logging
 from src.container import configure_logging
 from src.config import logging_settings

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from src.v1.users.schemas import UserSchema
+from src.schemas import UserSchema
 from src.v1.jwt.dependencies import (
     get_current_stuff_role_and_higher_permission_with_access_token,
 )

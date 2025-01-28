@@ -17,9 +17,10 @@ from src.v1.services.responses import (
     user_card_service_is_created_response,
     user_card_service_is_updated_response,
 )
-from src.v1.services.schemas import (
-    UserCardServiceBaseSchema,
+from src.schemas import (
     UserCardServiceSchema,
+    UserSchema,
+    UserCardServiceBaseSchema,
     UserCardServiceUpdateSchema,
 )
 from src.v1.services.utils import (
@@ -29,7 +30,6 @@ from src.v1.services.utils import (
     select_users_cards_services,
     select_user_card_service,
 )
-from src.v1.users.schemas import UserSchema
 
 from src.v1.jwt.dependencies import (
     get_current_user_with_access_token,

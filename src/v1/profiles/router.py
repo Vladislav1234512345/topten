@@ -8,8 +8,7 @@ from starlette.responses import JSONResponse
 from src.config import logging_settings, web_settings
 from src.database import AsyncSessionDep
 from src.models import ProfileModel
-from src.v1.users.schemas import UserSchema
-from src.v1.profiles.schemas import ProfileSchema, ProfileCreateAndUpdateSchema
+from src.schemas import ProfileSchema, UserSchema, ProfileCreateAndUpdateSchema
 from src.v1.profiles.utils import (
     delete_profile,
     create_profile,

@@ -10,15 +10,15 @@ from .config import email_settings
 from src.exceptions import (
     invalid_password_exception,
     too_many_email_requests_exception,
+    user_not_found_exception,
+    current_user_yet_exists_exception,
 )
-from ..users.exceptions import user_not_found_exception
 from src.v1.jwt.utils import validate_password
 from src.v1.email.tasks import send_email_reset_password, send_email_verification_code
-from ..users.utils import select_user
+from src.utils import select_user
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
-from ..auth.exceptions import current_user_yet_exists_exception
 
 logger = logging.getLogger(__name__)
 configure_logging(level=logging_settings.logging_level)

@@ -5,16 +5,14 @@ from starlette.responses import JSONResponse
 from src.v1.jwt.dependencies import get_current_user_with_access_token
 from src.v1.jwt.utils import set_tokens_in_response
 from src.database import AsyncSessionDep, get_redis_pool
-from ..users.utils import create_user, select_user
-from ..users.schemas import UserSchema
+from src.utils import create_user, select_user
+from src.schemas import UserSchema
 from src.models import UserModel
 from src.exceptions import (
     invalid_sms_code_exception,
-)
-from src.v1.auth.exceptions import (
     current_user_yet_exists_exception,
 )
-from .responses import signup_response
+from .responses import auth_response
 import logging
 from src.container import configure_logging
 from src.config import logging_settings
@@ -50,7 +48,10 @@ async def auth_view(
         raise invalid_sms_code_exception
 
     user = await select_user(
-        session=session, exclude_none=False, phone_number=user_auth_data.phone_number
+        session=session,
+        full_info=False,
+        exclude_none=False,
+        phone_number=user_auth_data.phone_number,
     )
 
     if user is None:
@@ -67,7 +68,7 @@ async def auth_view(
         f"User has been successfully authorized, phone number: %s",
         user_auth_data.phone_number,
     )
-    return set_tokens_in_response(response=signup_response, user=user)
+    return set_tokens_in_response(response=auth_response, user=user)
 
 
 # @router.post("/signup")

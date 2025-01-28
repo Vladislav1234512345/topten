@@ -14,7 +14,7 @@ from src.v1.reviews.exceptions import (
     user_card_review_not_found_exception,
 )
 from src.models import UserCardReviewModel
-from src.v1.reviews.schemas import UserCardReviewSchema
+from src.schemas import UserCardReviewSchema
 import logging
 from src.container import configure_logging
 from src.config import logging_settings

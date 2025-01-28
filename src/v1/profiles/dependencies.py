@@ -3,8 +3,7 @@ from typing import Any
 from fastapi import Depends
 
 from src.database import AsyncSessionDep
-from src.v1.users.schemas import UserSchema
-from src.v1.profiles.schemas import ProfileSchema
+from src.schemas import ProfileSchema, UserSchema
 from src.v1.profiles.utils import select_profile
 from src.v1.jwt.dependencies import get_current_user_with_access_token
 

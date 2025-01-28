@@ -1,20 +1,21 @@
 import shutil
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile
 from fastapi.params import Depends
-from starlette.datastructures import UploadFile
 from starlette.responses import JSONResponse
 
 from src.config import logging_settings, web_settings
 from src.database import AsyncSessionDep
 from src.models import UserCardModel
-from src.v1.cards.schemas import (
+from src.schemas import (
+    UserCardSchema,
     UserCardCreateSchema,
     UserCardUpdateSchema,
-    UserCardSchema,
+    UserSchema,
 )
-from src.v1.users.schemas import UserSchema
+
+
 from src.v1.cards.utils import (
     create_user_card,
     delete_user_card,
@@ -69,7 +70,7 @@ async def get_users_cards_view(  # type: ignore
 
 
 @router.patch("/")
-async def update_user_card_with_user_and_activity_ids_view(
+async def update_user_card_view(
     session: AsyncSessionDep,
     user_card_update_schema: UserCardUpdateSchema,
     card_image_file: UploadFile | None = None,

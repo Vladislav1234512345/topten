@@ -13,7 +13,7 @@ from src.v1.activities.responses import (
     activity_is_created_response,
     activity_is_updated_response,
 )
-from src.v1.activities.schemas import ActivityBaseSchema, ActivitySchema
+from src.schemas import ActivitySchema, UserSchema, ActivityBaseSchema
 from src.v1.activities.utils import (
     create_activity,
     delete_activity,
@@ -21,7 +21,6 @@ from src.v1.activities.utils import (
     select_activities,
     select_activity,
 )
-from src.v1.users.schemas import UserSchema
 
 from src.v1.jwt.dependencies import (
     get_current_user_with_access_token,

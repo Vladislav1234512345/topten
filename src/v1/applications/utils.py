@@ -13,7 +13,7 @@ from src.v1.applications.exceptions import (
 )
 
 from src.models import ApplicationModel, UserCardServiceModel, UserCardModel
-from src.v1.applications.schemas import ApplicationSchema
+from src.schemas import ApplicationSchema
 import logging
 from src.container import configure_logging
 from src.config import logging_settings

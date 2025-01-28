@@ -15,12 +15,12 @@ from src.v1.reviews.responses import (
     user_card_review_is_deleted_response,
     user_card_review_is_updated_response,
 )
-from src.v1.reviews.schemas import (
-    UserCardReviewBaseSchema,
-    UserCardReviewUpdateSchema,
+from src.schemas import (
     UserCardReviewSchema,
+    UserSchema,
+    UserCardReviewUpdateSchema,
+    UserCardReviewBaseSchema,
 )
-from src.v1.users.schemas import UserSchema
 from src.v1.reviews.utils import (
     create_user_card_review,
     delete_user_card_review,

@@ -2,7 +2,7 @@ __all__ = ("router",)
 
 
 from .jwt import router as jwt_router
-from .email import router as email_router
+from .sms import router as sms_router
 from .auth import router as auth_router
 from .admin import router as admin_router
 from .stuff import router as stuff_router
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/v1")
 
 
 router.include_router(router=jwt_router)
-router.include_router(router=email_router)
+router.include_router(router=sms_router)
 router.include_router(router=auth_router)
 router.include_router(router=admin_router)
 router.include_router(router=stuff_router)

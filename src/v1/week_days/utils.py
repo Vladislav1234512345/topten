@@ -10,7 +10,7 @@ from src.v1.week_days.exceptions import (
     user_week_day_not_found_exception,
     update_user_week_day_exception,
 )
-from src.v1.week_days.schemas import UserWeekDaySchema
+from src.schemas import UserWeekDaySchema
 from src.models import UserWeekDayModel, WeekDayEnum
 import logging
 from src.container import configure_logging

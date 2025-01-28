@@ -11,9 +11,9 @@ from src.v1.cards.exceptions import (
     users_cards_not_found_exception,
 )
 
-from src.v1.users.exceptions import user_not_found_exception, users_not_found_exception
+from src.exceptions import user_not_found_exception, users_not_found_exception
 from src.models import UserCardModel, UserModel
-from src.v1.cards.schemas import UserCardSchema
+from src.schemas import UserCardSchema
 import logging
 from src.container import configure_logging
 from src.config import logging_settings

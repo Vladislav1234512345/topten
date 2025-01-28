@@ -14,3 +14,7 @@ reset_password_response = JSONResponse(
     content={"message": "Пароль был успешно обновлен."},
     status_code=status.HTTP_200_OK,
 )
+auth_response = JSONResponse(
+    content={"message": "Авторизация прошла успешно."},
+    status_code=status.HTTP_200_OK,
+)

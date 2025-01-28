@@ -10,7 +10,7 @@ from src.v1.vacations_times.exceptions import (
     user_vacation_time_not_found_exception,
     update_user_vacation_time_exception,
 )
-from src.v1.vacations_times.schemas import UserVacationTimeSchema
+from src.schemas import UserVacationTimeSchema
 from src.models import UserVacationTimeModel
 import logging
 from src.container import configure_logging

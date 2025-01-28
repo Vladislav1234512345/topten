@@ -10,7 +10,7 @@ from src.v1.vacations_dates.exceptions import (
     user_vacation_date_not_found_exception,
     update_user_vacation_date_exception,
 )
-from src.v1.vacations_dates.schemas import UserVacationDateSchema
+from src.schemas import UserVacationDateSchema
 from src.models import UserVacationDateModel, WeekDayEnum
 import logging
 from src.container import configure_logging

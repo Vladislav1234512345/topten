@@ -13,12 +13,6 @@ from src.v1.week_days.responses import (
     user_week_day_is_created_response,
     user_week_day_is_updated_response,
 )
-from src.v1.week_days.schemas import (
-    WeekDayBaseSchema,
-    WorkTimeBaseSchema,
-    UserWeekDaySchema,
-    WeekDaySchema,
-)
 from src.v1.week_days.utils import (
     create_user_week_day,
     delete_user_week_day,
@@ -26,7 +20,13 @@ from src.v1.week_days.utils import (
     select_users_week_days,
     select_user_week_day,
 )
-from src.v1.users.schemas import UserSchema
+from src.schemas import (
+    UserSchema,
+    WeekDayBaseSchema,
+    WorkTimeBaseSchema,
+    WeekDaySchema,
+    UserWeekDaySchema,
+)
 
 from src.v1.jwt.dependencies import get_current_user_with_access_token
 

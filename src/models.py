@@ -48,16 +48,16 @@ class UserModel(BaseModel):
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
 
-    profile: Mapped["ProfileModel"] = relationship(back_populates="users")
-    break_time: Mapped["UserBreakModel"] = relationship(back_populates="users")
-    vacations_time_intervals: Mapped[List["UserVacationTimeModel"]] = relationship(
-        back_populates="users"
+    profile: Mapped["ProfileModel"] = relationship(back_populates="user")
+    break_time: Mapped["UserBreakModel"] = relationship(back_populates="user")
+    vacations_times: Mapped[List["UserVacationTimeModel"]] = relationship(
+        back_populates="user"
     )
     vacations_dates: Mapped[List["UserVacationDateModel"]] = relationship(
-        back_populates="users"
+        back_populates="user"
     )
-    cards: Mapped[List["UserCardModel"]] = relationship(back_populates="users")
-    week_days: Mapped[List["UserWeekDayModel"]] = relationship(back_populates="users")
+    cards: Mapped[List["UserCardModel"]] = relationship(back_populates="user")
+    week_days: Mapped[List["UserWeekDayModel"]] = relationship(back_populates="user")
     applications: Mapped[List["ApplicationModel"]] = relationship(
         back_populates="user_receiver"
     )
@@ -72,7 +72,7 @@ class UserModel(BaseModel):
 
 class ProfileModel(BaseModel):
     __tablename__ = "profiles"
-    __table_args__ = UniqueConstraint("user_id", name="unique_user_id")
+    __table_args__ = tuple(UniqueConstraint("user_id", name="unique_user_id"))
 
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(
@@ -86,12 +86,12 @@ class ProfileModel(BaseModel):
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
 
-    user: Mapped["UserModel"] = relationship(back_populates="profiles")
+    user: Mapped["UserModel"] = relationship(back_populates="profile")
 
 
 class UserBreakModel(BaseModel):
     __tablename__ = "users_breaks"
-    __table_args__ = UniqueConstraint("user_id", name="unique_user_id")
+    __table_args__ = tuple(UniqueConstraint("user_id", name="unique_user_id"))
 
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(
@@ -132,7 +132,7 @@ class UserVacationTimeModel(BaseModel):
     start_vacation_time: Mapped[datetime.time] = mapped_column(Time, nullable=False)
     finish_vacation_time: Mapped[datetime.time] = mapped_column(Time, nullable=False)
 
-    user: Mapped["UserModel"] = relationship(back_populates="vacations_time_intervals")
+    user: Mapped["UserModel"] = relationship(back_populates="vacations_times")
 
 
 class UserVacationDateModel(BaseModel):
@@ -198,6 +198,19 @@ class ActivityModel(BaseModel):
 
     users: Mapped[List["UserModel"]] = relationship(
         back_populates="activities", secondary="users_activities"
+    )
+
+
+class UserActivityModel(BaseModel):
+    __tablename__ = "users_activities"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, nullable=False
+    )
+    activity_id: Mapped[int] = mapped_column(
+        ForeignKey("activities.id", ondelete="CASCADE"),
+        primary_key=True,
+        nullable=False,
     )
 
 

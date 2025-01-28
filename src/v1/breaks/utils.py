@@ -10,7 +10,7 @@ from src.v1.breaks.exceptions import (
     user_break_not_found_exception,
     update_user_break_exception,
 )
-from src.v1.breaks.schemas import UserBreakSchema
+from src.schemas import UserBreakSchema
 from src.models import UserBreakModel
 import logging
 from src.container import configure_logging

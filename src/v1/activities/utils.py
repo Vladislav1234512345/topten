@@ -10,7 +10,7 @@ from src.v1.activities.exceptions import (
     activity_not_found_exception,
     update_activity_exception,
 )
-from src.v1.activities.schemas import ActivitySchema
+from src.schemas import ActivitySchema
 from src.models import ActivityModel
 import logging
 from src.container import configure_logging
