@@ -83,7 +83,7 @@ async def select_application(  # type: ignore
     else:
         logger.info(
             "[DATABASE] Application has been successfully selected, application_id: %s, user_id: %s, user_card_service_id: %s",
-            application.id,
+            application.id,  # type: ignore
             application.user_id,  # type: ignore
             application.user_card_service_id,  # type: ignore
         )
@@ -111,7 +111,7 @@ async def update_application(  # type: ignore
         )
         raise application_not_found_exception
 
-    user_producer = application.service.card.user
+    user_producer = application.service.card.user  # type: ignore
 
     if user_producer != current_user_id:
         raise update_application_forbidden_exception

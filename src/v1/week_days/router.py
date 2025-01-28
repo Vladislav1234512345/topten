@@ -46,7 +46,7 @@ async def get_current_user_week_days_view(
     full_info: bool = False,
     user: UserSchema = Depends(get_current_user_with_access_token),  # type: ignore
 ) -> List[UserWeekDaySchema]:
-    return await select_user_week_day(
+    return await select_user_week_day(  # type: ignore
         session=session, full_info=full_info, user_id=user.id
     )
 
@@ -74,18 +74,21 @@ async def get_users_week_days_view(  # type: ignore
 @router.patch("/")
 async def update_user_week_day_view(
     session: AsyncSessionDep,
-    week_day: WeekDayBaseSchema,
+    week_day_base_schema: WeekDayBaseSchema,
     work_time_schema: WorkTimeBaseSchema,
     user: UserSchema = Depends(get_current_user_with_access_token),  # type: ignore
 ) -> JSONResponse:
     work_time_data = work_time_schema.model_dump(exclude_none=True)
     await update_user_week_day(
-        session=session, week_day=week_day, user_id=user.id, **work_time_data
+        session=session,
+        week_day=week_day_base_schema.week_day,
+        user_id=user.id,
+        **work_time_data,
     )
     logger.info(
         "User week day was successfully updated, user_id: %s, week_day: %s",
         user.id,
-        week_day,
+        week_day_base_schema.week_day,
     )
     return user_week_day_is_updated_response
 

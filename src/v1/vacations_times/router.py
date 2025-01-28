@@ -46,7 +46,7 @@ async def get_current_user_vacations_times_view(
     full_info: bool = False,
     user: UserSchema = Depends(get_current_user_with_access_token),  # type: ignore
 ) -> List[UserVacationTimeSchema]:
-    return await select_user_vacation_time(
+    return await select_user_vacation_time(  # type: ignore
         session=session, full_info=full_info, user_id=user.id
     )
 

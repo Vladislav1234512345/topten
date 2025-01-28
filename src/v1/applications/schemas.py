@@ -3,7 +3,7 @@ import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
 from src.models import ApplicationStatusEnum
-from src.schemas import UserCardServiceSchema
+from src.v1.services.schemas import UserCardServiceSchema
 from src.v1.users.schemas import UserSchema
 
 
@@ -29,10 +29,10 @@ class ApplicationSchema(ApplicationBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
-class ApplicationUpdateSchema(ApplicationBaseSchema):
-    application_date: datetime.date | None
-    start_application_time: datetime.time | None
-    finish_application_time: datetime.time | None
+class ApplicationUpdateSchema(BaseModel):
+    application_date: datetime.date | None = None
+    start_application_time: datetime.time | None = None
+    finish_application_time: datetime.time | None = None
     application_status: ApplicationStatusEnum | None = Field(
         default=ApplicationStatusEnum.waiting
     )

@@ -88,7 +88,7 @@ async def select_user_card_service(  # type: ignore
 
     logger.info(
         "[DATABASE] User break has been successfully selected, user_card_id: %s, user_card_service_id: %s, user_card_service name: %s",
-        user_card_service.user_card_id,
+        user_card_service.user_card_id,  # type: ignore
         user_card_service.id,  # type: ignore
         user_card_service.name,  # type: ignore
     )
@@ -109,7 +109,7 @@ async def update_user_card_service(  # type: ignore
         id=user_card_service_id,
     )
     user_cards_ids = [card.id for card in user.cards]
-    if not user_card_service.user_card_id in user_cards_ids:
+    if not user_card_service.user_card_id in user_cards_ids:  # type: ignore
         raise update_user_card_service_forbidden_exception
 
     if not user_card_service:
@@ -174,7 +174,7 @@ async def delete_user_card_service(session: AsyncSessionDep, user: UserSchema, *
         session=session, full_info=False, select_one_instance=True, **filters
     )
     user_cards_ids = [card.id for card in user.cards]
-    if not user_card_service.user_card_id in user_cards_ids:
+    if not user_card_service.user_card_id in user_cards_ids:  # type: ignore
         raise delete_user_card_service_forbidden_exception
     if not user_card_service:
         logger.warning("[DATABASE] User card service not found, params: %s", **filters)

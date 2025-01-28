@@ -10,7 +10,7 @@ class VacationDateBaseSchema(BaseModel):
 
 class VacationTimeBaseSchema(BaseModel):
     start_vacation_time: datetime.time
-    start_vacation_time: datetime.time
+    finish_vacation_time: datetime.time
 
 
 class VacationTimeAndDateBaseSchema(VacationTimeBaseSchema, VacationDateBaseSchema):

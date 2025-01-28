@@ -84,7 +84,7 @@ async def select_user_vacation_date(  # type: ignore
 
     logger.info(
         "[DATABASE] User vacation date has been successfully selected, user_id: %s, user_vacation_date_id: %s",
-        user_vacation_date.user_id,
+        user_vacation_date.user_id,  # type: ignore
         user_vacation_date.id,  # type: ignore
     )
     return UserVacationDateSchema.model_validate(

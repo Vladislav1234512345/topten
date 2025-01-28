@@ -80,7 +80,7 @@ async def select_user_week_day(  # type: ignore
 
     logger.info(
         "[DATABASE] User week day has been successfully selected, user_id: %s, user_week_day_id: %s, week_day: %s",
-        user_week_day.user_id,
+        user_week_day.user_id,  # type: ignore
         user_week_day.id,  # type: ignore
         user_week_day.week_day,  # type: ignore
     )

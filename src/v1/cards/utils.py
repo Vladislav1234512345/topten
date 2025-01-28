@@ -53,7 +53,7 @@ async def select_users_cards_instances(session: AsyncSessionDep, select_one_inst
             joinedload(UserCardModel.user),
             joinedload(UserCardModel.activity),
             joinedload(UserModel.profile),
-            selectinload(UserCardModel.card_reviews),
+            selectinload(UserCardModel.reviews),
             selectinload(UserCardModel.services),
         )
     try:
@@ -85,7 +85,7 @@ async def select_user_card(  # type: ignore
     else:
         logger.info(
             "[DATABASE] User Card has been successfully selected, user_card_id: %s, user_id: %s, activity_id: %s",
-            user_card.id,
+            user_card.id,  # type: ignore
             user_card.user_id,  # type: ignore
             user_card.activity_id,  # type: ignore
         )
@@ -123,7 +123,7 @@ async def update_user_card_with_user_and_activity_ids(  # type: ignore
     except Exception:
         logger.error(
             "[DATABASE] Failed to update the user сard, user_card_id: %s, user_id: %s, activity_id: %s",
-            user_card.id,
+            user_card.id,  # type: ignore
             user_id,
             activity_id,
         )

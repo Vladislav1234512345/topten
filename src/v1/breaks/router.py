@@ -43,7 +43,7 @@ async def get_current_user_break_view(
     full_info: bool = False,
     user: UserSchema = Depends(get_current_user_with_access_token),  # type: ignore
 ) -> List[UserBreakSchema]:
-    return await select_user_break(session=session, full_info=full_info, id=user.id)
+    return await select_user_break(session=session, full_info=full_info, id=user.id)  # type: ignore
 
 
 @router.get("/{user_id}")

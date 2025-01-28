@@ -184,9 +184,7 @@ class UserCardModel(BaseModel):
 
     user: Mapped["UserModel"] = relationship(back_populates="cards")
     activity: Mapped["ActivityModel"] = relationship(back_populates="cards")
-    card_reviews: Mapped[List["UserCardReviewModel"]] = relationship(
-        back_populates="card"
-    )
+    reviews: Mapped[List["UserCardReviewModel"]] = relationship(back_populates="card")
     services: Mapped[List["UserCardServiceModel"]] = relationship(back_populates="card")
 
 
@@ -206,12 +204,13 @@ class ActivityModel(BaseModel):
 class UserCardReviewModel(BaseModel):
     __tablename__ = "users_cards_reviews"
 
-    id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, nullable=False
     )
     user_card_id: Mapped[int] = mapped_column(
-        ForeignKey("users_cards.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("users_cards.id", ondelete="CASCADE"),
+        primary_key=True,
+        nullable=False,
     )
     mark: Mapped[int] = mapped_column(
         nullable=False,
@@ -221,7 +220,7 @@ class UserCardReviewModel(BaseModel):
     updated_at: Mapped[updated_at]
 
     user_sender: Mapped["UserModel"] = relationship(back_populates="sent_reviews")
-    card: Mapped["UserCardModel"] = relationship(back_populates="card_reviews")
+    card: Mapped["UserCardModel"] = relationship(back_populates="reviews")
 
 
 class UserCardServiceModel(BaseModel):

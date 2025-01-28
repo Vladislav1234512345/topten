@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from typing import List
 
+from src.v1.applications.schemas import ApplicationSchema
 from src.v1.cards.schemas import UserCardSchema
 import datetime
 

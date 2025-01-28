@@ -77,7 +77,7 @@ async def select_user_break(  # type: ignore
 
     logger.info(
         "[DATABASE] User break has been successfully selected, user_id: %s, user_break_id: %s, name: %s",
-        user_break.user_id,
+        user_break.user_id,  # type: ignore
         user_break.id,  # type: ignore
         user_break.name,  # type: ignore
     )
